@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>香港 Hong Kong Salary & Budget Planner</title>
+<meta name="theme-color" content="#070b14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HK Planner">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Hong Kong salary, MPF & tax, household budget and Netherlands move calculator for Jake & Maria.">
+<link rel="apple-touch-icon" href="icon.png">
+<style>
+:root{
+  --bg:#070b14; --bg2:#0f1626; --bg3:#16203a; --line:#243150;
+  --txt:#eaf2ff; --mut:#7e8db0;
+  --neon-pink:#ff2e88; --neon-cyan:#22e0e0; --neon-jade:#27e3a0;
+  --gold:#ffcf4d; --hk-red:#e8243a; --nl-orange:#ff8a3d;
+  --acc:var(--neon-jade); --acc2:var(--neon-cyan);
+  --good:#27e3a0; --warn:#ffcf4d; --bad:#ff4d6d;
+  --shadow:0 10px 40px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--txt);font-size:15px;line-height:1.5;padding-bottom:max(40px,env(safe-area-inset-bottom));
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:
+    radial-gradient(1200px 500px at 50% -120px,rgba(255,46,136,.18),transparent 60%),
+    radial-gradient(900px 500px at 90% 0,rgba(34,224,224,.12),transparent 55%),
+    linear-gradient(180deg,#070b14 0%,#0a1020 40%,#0c1428 100%);
+  background-attachment:fixed;}
+h1,h2,h3{margin:0;font-weight:700}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px}
+
+header{position:relative;overflow:hidden;padding:calc(26px + env(safe-area-inset-top)) 16px 0;text-align:center}
+.zh{font-size:13px;letter-spacing:8px;color:var(--gold);text-shadow:0 0 14px rgba(255,207,77,.5);margin-bottom:6px}
+header h1{font-size:24px;letter-spacing:.5px;
+  background:linear-gradient(90deg,var(--neon-pink),var(--gold),var(--neon-cyan));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 18px rgba(255,46,136,.35))}
+header p{margin:8px auto 0;color:var(--mut);font-size:13px;max-width:560px}
+.skyline{display:block;width:100%;max-width:980px;margin:14px auto -2px;filter:drop-shadow(0 0 22px rgba(34,224,224,.25))}
+.harborline{height:2px;background:linear-gradient(90deg,transparent,var(--neon-cyan),var(--neon-pink),transparent);
+  box-shadow:0 0 16px var(--neon-cyan);opacity:.8}
+.reflection{height:26px;background:linear-gradient(180deg,rgba(34,224,224,.10),transparent);filter:blur(1px);opacity:.5}
+
+.fxbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px auto 0;max-width:680px;
+  background:rgba(15,22,38,.8);border:1px solid var(--line);border-radius:14px;padding:11px 14px;font-size:13px;backdrop-filter:blur(6px)}
+.fxbar .lan{font-size:16px}
+.fxbar input{width:84px}
+.fxbar b{color:var(--gold)}
+.reset{margin-left:auto;background:#0b1322;border:1px solid var(--line);color:var(--mut);border-radius:9px;padding:7px 11px;font-size:12px;cursor:pointer;font-weight:600;transition:.15s}
+.reset:hover{color:var(--bad);border-color:var(--bad)}
+.saved{font-size:11px;color:var(--neon-jade);opacity:0;transition:opacity .3s}
+.saved.show{opacity:1}
+
+.tabs{display:flex;gap:7px;position:sticky;top:0;z-index:30;background:rgba(7,11,20,.82);backdrop-filter:blur(10px);
+  padding:11px 16px;border-bottom:1px solid var(--line);overflow-x:auto;justify-content:center}
+.tab{flex:0 0 auto;padding:9px 16px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--mut);
+  cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;transition:.18s}
+.tab:hover{color:var(--txt);border-color:var(--neon-cyan)}
+.tab.active{color:#05140f;border-color:transparent;background:linear-gradient(90deg,var(--neon-jade),var(--neon-cyan));box-shadow:0 0 18px rgba(39,227,160,.45)}
+
+.panel{display:none;animation:fade .3s ease}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+
+.card{position:relative;background:linear-gradient(180deg,rgba(22,32,58,.85),rgba(15,22,38,.92));
+  border:1px solid var(--line);border-radius:18px;padding:16px 16px 18px;margin:16px 0;box-shadow:var(--shadow);backdrop-filter:blur(4px)}
+.card::before{content:"";position:absolute;inset:0;border-radius:18px;padding:1px;pointer-events:none;
+  background:linear-gradient(135deg,rgba(34,224,224,.35),transparent 40%,transparent 60%,rgba(255,46,136,.30));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.9}
+.card h2{font-size:15.5px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.card .sub{color:var(--mut);font-size:12.5px;margin-bottom:12px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:12.5px;color:var(--mut);margin:0 0 5px}
+input,select{width:100%;background:#0b1322;border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:11px 12px;font-size:16px;outline:none;font-family:inherit;transition:.15s}
+input:focus,select:focus{border-color:var(--neon-cyan);box-shadow:0 0 0 3px rgba(34,224,224,.13)}
+@keyframes synced{0%{box-shadow:0 0 0 3px rgba(255,207,77,.45)}100%{box-shadow:0 0 0 3px rgba(255,207,77,0)}}
+input.synced{animation:synced .6s ease}
+.field{margin-bottom:12px}
+.linked{font-size:11px;color:var(--gold);margin:-4px 0 12px;display:flex;align-items:center;gap:6px}
+.small{font-size:11.5px;color:var(--mut)}
+
+.hhToggle{display:flex;gap:7px;margin-bottom:14px;max-width:340px}
+.hhToggle button{flex:1;padding:9px;background:#0b1322;border:1px solid var(--line);color:var(--mut);border-radius:11px;cursor:pointer;font-size:13px;font-weight:700;transition:.15s}
+.hhToggle button:hover{color:var(--txt);border-color:var(--neon-cyan)}
+.hhToggle button.on{color:#05140f;border-color:transparent;background:linear-gradient(90deg,var(--neon-jade),var(--neon-cyan));box-shadow:0 0 14px rgba(39,227,160,.4)}
+.person{border:1px solid var(--line);border-radius:14px;padding:12px 12px 2px;margin-bottom:12px}
+.person.p1{border-left:3px solid var(--neon-jade)}
+.person.p2{border-left:3px solid var(--neon-pink)}
+.pname{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.pname input{font-weight:800;font-size:16px;max-width:170px;background:transparent;border:none;border-bottom:1px dashed var(--line);border-radius:0;padding:4px 2px}
+.pname input:focus{border-color:var(--neon-cyan);box-shadow:none}
+.pname .tag{font-size:11px}
+.p1 .pname .tag{color:var(--neon-jade)} .p2 .pname .tag{color:var(--neon-pink)}
+
+.stat{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px dashed var(--line)}
+.stat:last-child{border-bottom:none}
+.stat .k{color:var(--mut);font-size:13px}
+.stat .v{font-variant-numeric:tabular-nums;font-weight:700}
+.stat .v small{color:var(--mut);font-weight:400;margin-left:6px;font-size:11px}
+.big{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.3px}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.hero{grid-template-columns:1fr}}
+.hero .box{position:relative;border-radius:16px;padding:16px;overflow:hidden;background:radial-gradient(120% 140% at 0 0,rgba(39,227,160,.14),transparent 55%),#0b1322;border:1px solid var(--line)}
+.hero .box:nth-child(2){background:radial-gradient(120% 140% at 100% 0,rgba(255,46,136,.16),transparent 55%),#0b1322}
+.hero .box .lbl{color:var(--mut);font-size:12px;margin-bottom:3px}
+.hero .box:nth-child(1) .big{color:var(--neon-jade);text-shadow:0 0 18px rgba(39,227,160,.4)}
+.hero .box:nth-child(2) .big{color:var(--neon-pink);text-shadow:0 0 18px rgba(255,46,136,.4)}
+.hero .eur{color:var(--gold);font-size:13px;margin-top:3px}
+.pos{color:var(--good)} .neg{color:var(--bad)} .mid{color:var(--warn)}
+
+.exp{display:grid;grid-template-columns:1fr 120px 32px;gap:8px;align-items:center;margin-bottom:8px}
+.exp input.amt{text-align:right;font-variant-numeric:tabular-nums}
+.exp .del{background:#0b1322;border:1px solid var(--line);color:var(--mut);border-radius:9px;cursor:pointer;height:40px;font-size:17px}
+.exp .del:hover{color:var(--bad);border-color:var(--bad)}
+.addbtn{background:transparent;border:1px dashed var(--line);color:var(--neon-jade);border-radius:11px;padding:10px;width:100%;cursor:pointer;font-size:13px;font-weight:700;margin-top:4px;transition:.15s}
+.addbtn:hover{border-color:var(--neon-jade);box-shadow:0 0 14px rgba(39,227,160,.2)}
+.catTot{text-align:right;color:var(--mut);font-size:12.5px;margin-top:8px}
+.catTot b{color:var(--txt)}
+
+.bar{height:14px;border-radius:9px;background:#0b1322;overflow:hidden;display:flex;margin:12px 0 8px;border:1px solid var(--line)}
+.bar i{height:100%;display:block;transition:width .3s}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11.5px;color:var(--mut)}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:9px;height:9px;border-radius:3px;display:inline-block}
+
+.cmp{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:6px;font-size:13px;align-items:center}
+.cmp .h{color:var(--mut);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.cmp .num{text-align:right;font-variant-numeric:tabular-nums;padding:7px 0;border-bottom:1px solid var(--line)}
+.cmp .lab{padding:7px 0;border-bottom:1px solid var(--line);color:var(--mut)}
+.cmp .win{color:var(--good);font-weight:800;text-shadow:0 0 10px rgba(39,227,160,.4)}
+
+.cmp4{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:5px;font-size:12.5px;align-items:center}
+.cmp4 .h{color:var(--mut);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;text-align:right;padding-bottom:2px}
+.cmp4 .h.l{text-align:left}
+.cmp4 .num{text-align:right;font-variant-numeric:tabular-nums;padding:6px 0;border-bottom:1px solid var(--line)}
+.cmp4 .lab{padding:6px 0;border-bottom:1px solid var(--line);color:var(--mut)}
+.cmp4 .tot{font-weight:800;color:var(--gold)}
+.cmp4 .j1{color:var(--neon-jade)} .cmp4 .j2{color:var(--neon-pink)}
+
+.note{font-size:11.8px;color:var(--mut);margin-top:12px;line-height:1.55;border-left:2px solid var(--gold);padding-left:10px}
+.advice{font-size:12px;margin-top:12px;line-height:1.55;border-left:2px solid var(--neon-jade);padding-left:10px;color:var(--txt);background:rgba(39,227,160,.06);border-radius:0 8px 8px 0;padding:8px 10px}
+h3.aLab{font-size:13px;color:var(--neon-jade);margin-bottom:8px}
+h3.bLab{font-size:13px;color:var(--neon-pink);margin-bottom:8px}
+
+.foot{text-align:center;color:var(--mut);font-size:11px;padding:24px 16px}
+.foot .bauhinia{display:block;margin:0 auto 8px;filter:drop-shadow(0 0 10px rgba(232,36,58,.5))}
+a{color:var(--neon-cyan)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="zh">香港 · HŌNG KÓNG</div>
+  <h1>Salary &amp; Budget Planner</h1>
+  <p>Take-home pay, MPF &amp; salaries tax, household budget, offer comparison and a Netherlands move check — for Jake &amp; Maria.</p>
+
+  <svg class="skyline" viewBox="0 0 980 150" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="tower" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b2b4d"/><stop offset="1" stop-color="#0c1830"/></linearGradient>
+      <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22e0e0"/><stop offset="1" stop-color="#0c1830"/></linearGradient>
+      <filter id="b"><feGaussianBlur stdDeviation="1.4"/></filter>
+    </defs>
+    <g fill="url(#tower)" stroke="#2bd6e6" stroke-width="0.6" stroke-opacity="0.5">
+      <rect x="20" y="86" width="34" height="64"/><rect x="60" y="58" width="26" height="92"/><rect x="92" y="100" width="22" height="50"/>
+      <polygon points="124,150 124,40 150,18 150,150" fill="url(#glow)" fill-opacity="0.85"/>
+      <rect x="158" y="70" width="20" height="80"/><rect x="182" y="48" width="30" height="102"/><rect x="216" y="92" width="20" height="58"/>
+      <polygon points="244,150 244,26 252,12 260,26 260,150" fill="url(#glow)" fill-opacity="0.8"/>
+      <rect x="266" y="74" width="24" height="76"/><rect x="294" y="54" width="22" height="96"/><rect x="320" y="96" width="26" height="54"/>
+      <rect x="352" y="66" width="20" height="84"/><rect x="376" y="40" width="28" height="110"/><rect x="408" y="88" width="20" height="62"/>
+      <rect x="432" y="60" width="30" height="90"/><rect x="466" y="100" width="22" height="50"/>
+      <polygon points="494,150 494,8 506,8 506,150" fill="url(#glow)" fill-opacity="0.9"/>
+      <rect x="512" y="56" width="22" height="94"/><rect x="538" y="84" width="26" height="66"/><rect x="568" y="62" width="20" height="88"/>
+      <rect x="592" y="44" width="30" height="106"/><rect x="626" y="94" width="22" height="56"/><rect x="652" y="70" width="24" height="80"/>
+      <polygon points="682,150 682,34 694,20 706,34 706,150" fill="url(#glow)" fill-opacity="0.8"/>
+      <rect x="712" y="78" width="22" height="72"/><rect x="738" y="56" width="28" height="94"/><rect x="770" y="98" width="22" height="52"/>
+      <rect x="796" y="66" width="24" height="84"/><rect x="824" y="46" width="30" height="104"/><rect x="858" y="90" width="22" height="60"/>
+      <rect x="884" y="68" width="24" height="82"/><rect x="912" y="100" width="22" height="50"/><rect x="938" y="80" width="24" height="70"/>
+    </g>
+    <g fill="#ffcf4d" opacity="0.85" filter="url(#b)">
+      <rect x="66" y="68" width="3" height="3"/><rect x="74" y="80" width="3" height="3"/><rect x="190" y="60" width="3" height="3"/>
+      <rect x="198" y="76" width="3" height="3"/><rect x="384" y="54" width="3" height="3"/><rect x="392" y="72" width="3" height="3"/>
+      <rect x="600" y="58" width="3" height="3"/><rect x="608" y="80" width="3" height="3"/><rect x="746" y="70" width="3" height="3"/><rect x="832" y="60" width="3" height="3"/>
+    </g>
+    <g fill="#ff2e88" opacity="0.8" filter="url(#b)"><circle cx="499" cy="14" r="2.4"/><circle cx="250" cy="16" r="2"/><circle cx="688" cy="26" r="2"/></g>
+  </svg>
+  <div class="harborline"></div>
+  <div class="reflection"></div>
+
+  <div class="fxbar">
+    <span class="lan">💱</span><span>EUR → HKD</span>
+    <input type="number" id="fx" value="9.09" step="0.01" min="1" inputmode="decimal">
+    <span class="small">€1 = HK$<b id="fxEcho">9.09</b> · also shown in EUR</span>
+    <span class="saved" id="savedMsg">✓ saved</span>
+    <button class="reset" id="resetBtn">↺ Reset</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-t="salary">💼 Salary &amp; Tax</div>
+  <div class="tab" data-t="budget">🏮 Budget</div>
+  <div class="tab" data-t="compare">⚖️ Offer Compare</div>
+  <div class="tab" data-t="move">🇳🇱→🇭🇰 Move check</div>
+</div>
+
+<div class="wrap">
+
+<div class="panel active" id="salary">
+  <div class="card">
+    <h2>💼 Income &amp; tax</h2>
+    <div class="sub">Fill in either monthly or annual — they stay in sync. Switch to “Me + Maria” for a full household picture (each taxed individually, as Hong Kong does).</div>
+    <div class="hhToggle">
+      <button id="hh_single" class="on">Just me</button>
+      <button id="hh_couple">Me + Maria</button>
+    </div>
+
+    <div class="person p1">
+      <div class="pname"><input id="s_name" value="Jake"><span class="tag">· person 1</span></div>
+      <div class="grid">
+        <div class="field"><label>Monthly base salary (HK$)</label><input type="number" id="s_month" value="60000" step="1000" inputmode="numeric"></div>
+        <div class="field"><label>Annual base salary (HK$)</label><input type="number" id="s_annual" value="780000" step="10000" inputmode="numeric"></div>
+      </div>
+      <div class="linked">🔗 Monthly &amp; annual sync live</div>
+      <div class="grid">
+        <div class="field"><label>Payments / year (12, or 13)</label><input type="number" id="s_periods" value="13" step="1" min="12" max="13" inputmode="numeric"></div>
+        <div class="field"><label>Annual bonus (HK$)</label><input type="number" id="s_bonus" value="0" step="5000" inputmode="numeric"></div>
+        <div class="field"><label>Monthly housing allowance (HK$)</label><input type="number" id="s_housing" value="0" step="1000" inputmode="numeric"></div>
+        <div class="field"><label>Other annual deductions (HK$)</label><input type="number" id="s_other" value="0" step="1000" inputmode="numeric"></div>
+      </div>
+    </div>
+
+    <div class="person p2" id="person2" style="display:none">
+      <div class="pname"><input id="m_name" value="Maria"><span class="tag">· person 2</span></div>
+      <div class="grid">
+        <div class="field"><label>Monthly base salary (HK$)</label><input type="number" id="m_month" value="45000" step="1000" inputmode="numeric"></div>
+        <div class="field"><label>Annual base salary (HK$)</label><input type="number" id="m_annual" value="585000" step="10000" inputmode="numeric"></div>
+      </div>
+      <div class="linked">🔗 Monthly &amp; annual sync live</div>
+      <div class="grid">
+        <div class="field"><label>Payments / year (12, or 13)</label><input type="number" id="m_periods" value="13" step="1" min="12" max="13" inputmode="numeric"></div>
+        <div class="field"><label>Annual bonus (HK$)</label><input type="number" id="m_bonus" value="0" step="5000" inputmode="numeric"></div>
+        <div class="field"><label>Monthly housing allowance (HK$)</label><input type="number" id="m_housing" value="0" step="1000" inputmode="numeric"></div>
+        <div class="field"><label>Other annual deductions (HK$)</label><input type="number" id="m_other" value="0" step="1000" inputmode="numeric"></div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="field" id="maritalField"><label>Marital status (for allowances)</label>
+        <select id="s_marital"><option value="single">Single</option><option value="married">Married (claim married allowance)</option></select></div>
+      <div class="field"><label>Children (total, for allowance)</label><input type="number" id="s_children" value="0" step="1" min="0" inputmode="numeric"></div>
+      <div class="field"><label>Dependent parents/grandparents (≥60)</label><input type="number" id="s_parents" value="0" step="1" min="0" inputmode="numeric"></div>
+    </div>
+    <div class="small" id="sharedNote"></div>
+  </div>
+
+  <div class="card">
+    <h2 id="r_title">✨ What you take home</h2>
+    <div class="hero">
+      <div class="box"><div class="lbl" id="r_lbl1">Net monthly · after tax &amp; MPF</div><div class="big" id="r_netMonth">—</div><div class="eur" id="r_netMonthEur">—</div></div>
+      <div class="box"><div class="lbl" id="r_lbl2">Net annual</div><div class="big" id="r_netYear">—</div><div class="eur" id="r_netYearEur">—</div></div>
+    </div>
+
+    <div id="singleStats" style="margin-top:16px">
+      <div class="stat"><span class="k">Gross annual income</span><span class="v" id="r_gross">—</span></div>
+      <div class="stat"><span class="k">MPF (employee, 5% capped HK$18,000/yr)</span><span class="v neg" id="r_mpf">—</span></div>
+      <div class="stat"><span class="k">Salaries tax</span><span class="v neg" id="r_tax">—</span></div>
+      <div class="stat"><span class="k">Effective tax rate</span><span class="v" id="r_etr">—</span></div>
+      <div class="stat"><span class="k">Net chargeable income (taxed)</span><span class="v" id="r_nci">—</span></div>
+      <div class="stat"><span class="k">Tax method used</span><span class="v" id="r_method">—</span></div>
+    </div>
+
+    <div id="coupleStats" style="margin-top:16px;display:none"></div>
+
+    <div class="note" id="r_alwNote"></div>
+    <div class="advice" id="r_advice" style="display:none"></div>
+  </div>
+
+  <div class="card">
+    <h2 id="r_ladderTitle">🪜 What a counter gets me</h2>
+    <div class="sub" id="r_ladderSub">Net monthly take-home at different base salaries (your current settings applied).</div>
+    <div id="r_ladder"></div>
+  </div>
+</div>
+
+<div class="panel" id="budget">
+  <div class="card">
+    <h2>🏮 Monthly budget</h2>
+    <div class="sub">Edit any line. Income is pulled from the Salary tab. Deposit / one-offs are tracked separately below.</div>
+    <div class="stat"><span class="k" id="b_incomeLbl">Net monthly income (from Salary tab)</span><span class="v pos" id="b_income">—</span></div>
+    <div class="small" id="b_breakdown" style="margin-top:6px"></div>
+  </div>
+
+  <div class="card" data-cat="housing">
+    <h2>🏙️ Housing &amp; utilities</h2>
+    <div class="rows"></div><button class="addbtn">+ Add line</button>
+    <div class="catTot">Subtotal: <b class="ct">—</b></div>
+  </div>
+
+  <div class="card" data-cat="living">
+    <h2>🥢 Daily living</h2>
+    <div class="rows"></div><button class="addbtn">+ Add line</button>
+    <div class="catTot">Subtotal: <b class="ct">—</b></div>
+  </div>
+
+  <div class="card" data-cat="lifestyle">
+    <h2>🌃 Lifestyle</h2>
+    <div class="rows"></div><button class="addbtn">+ Add line</button>
+    <div class="catTot">Subtotal: <b class="ct">—</b></div>
+  </div>
+
+  <div class="card">
+    <h2>📊 Monthly result</h2>
+    <div class="bar" id="b_bar"></div>
+    <div class="legend" id="b_legend"></div>
+    <div style="margin-top:14px">
+      <div class="stat"><span class="k">Total expenses</span><span class="v neg" id="b_exp">—</span></div>
+      <div class="stat"><span class="k">Leftover / savings each month</span><span class="v" id="b_left">—</span></div>
+      <div class="stat"><span class="k">Savings rate</span><span class="v" id="b_rate">—</span></div>
+      <div class="stat"><span class="k">Leftover in EUR</span><span class="v" id="b_leftEur">—</span></div>
+    </div>
+    <div class="advice" id="b_split" style="display:none"></div>
+  </div>
+
+  <div class="card" data-cat="oneoff">
+    <h2>🚢 Relocation &amp; one-off costs</h2>
+    <div class="sub">Upfront cash needed around the move. Not part of the monthly budget.</div>
+    <div class="rows"></div><button class="addbtn">+ Add line</button>
+    <div class="catTot">Total upfront: <b class="ct">—</b> · <span id="oneoffEur" class="small"></span></div>
+    <div class="note">HK landlords typically want <b>2–3 months' rent as deposit + 1 month upfront</b>, plus an agent fee around half a month's rent.</div>
+  </div>
+</div>
+
+<div class="panel" id="compare">
+  <div class="card">
+    <h2>⚖️ Compare two offers</h2>
+    <div class="sub">For a single person's job offer. Offer A defaults to person 1's Salary-tab numbers. Set Offer B to your counter. Monthly &amp; annual sync in each column.</div>
+    <div class="grid">
+      <div>
+        <h3 class="aLab">🟢 Offer A (current)</h3>
+        <div class="field"><label>Monthly base (HK$)</label><input type="number" id="a_month" value="60000" step="1000" inputmode="numeric"></div>
+        <div class="field"><label>Annual base (HK$)</label><input type="number" id="a_annual" value="780000" step="10000" inputmode="numeric"></div>
+        <div class="field"><label>Payments / year</label><input type="number" id="a_periods" value="13" inputmode="numeric"></div>
+        <div class="field"><label>Annual bonus (HK$)</label><input type="number" id="a_bonus" value="0" step="5000" inputmode="numeric"></div>
+        <div class="field"><label>Monthly housing allow. (HK$)</label><input type="number" id="a_housing" value="0" step="1000" inputmode="numeric"></div>
+      </div>
+      <div>
+        <h3 class="bLab">🔴 Offer B (counter)</h3>
+        <div class="field"><label>Monthly base (HK$)</label><input type="number" id="bb_month" value="70000" step="1000" inputmode="numeric"></div>
+        <div class="field"><label>Annual base (HK$)</label><input type="number" id="bb_annual" value="910000" step="10000" inputmode="numeric"></div>
+        <div class="field"><label>Payments / year</label><input type="number" id="bb_periods" value="13" inputmode="numeric"></div>
+        <div class="field"><label>Annual bonus (HK$)</label><input type="number" id="bb_bonus" value="0" step="5000" inputmode="numeric"></div>
+        <div class="field"><label>Monthly housing allow. (HK$)</label><input type="number" id="bb_housing" value="0" step="1000" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div class="linked">🔗 In each offer, monthly &amp; annual update each other live</div>
+    <div class="small">Personal allowances (marital status, children, parents) are taken from the Salary tab and applied to both.</div>
+  </div>
+
+  <div class="card">
+    <h2>📈 Side by side</h2>
+    <div class="cmp" id="cmpTable"></div>
+    <div class="note" id="cmpVerdict"></div>
+  </div>
+</div>
+
+<div class="panel" id="move">
+  <div class="card">
+    <h2>🇳🇱 → 🇭🇰 Is the move worth it?</h2>
+    <div class="sub">Compare your current Dutch take-home with Hong Kong. Most accurate if you enter the net you actually receive today.</div>
+    <div class="hhToggle">
+      <button id="nl_known" class="on">I know my NL net</button>
+      <button id="nl_est">Estimate from gross</button>
+    </div>
+    <div id="nlKnownBox">
+      <div class="grid">
+        <div class="field"><label>Current Dutch net salary (€)</label><input type="number" id="nl_net" value="3500" step="100" inputmode="numeric"></div>
+        <div class="field"><label>This is…</label><select id="nl_per"><option value="month">per month</option><option value="year">per year</option></select></div>
+      </div>
+      <div class="small">Use your take-home after Dutch tax. For a couple, enter your combined net to compare with HK household.</div>
+    </div>
+    <div id="nlEstBox" style="display:none">
+      <div class="grid">
+        <div class="field"><label>Annual gross salary (€)</label><input type="number" id="nl_gross" value="70000" step="1000" inputmode="numeric"></div>
+        <div class="field"><label>30% ruling?</label><select id="nl_ruling"><option value="no">No</option><option value="yes">Yes (30% tax-free)</option></select></div>
+      </div>
+      <div class="small">Rough estimate: 2026 box-1 brackets + general &amp; labour tax credits. For accuracy use “I know my NL net”.</div>
+    </div>
+    <div class="field" style="margin-top:8px">
+      <label>Cost of living: HK vs NL <span class="small">1.0 = same · 1.15 = HK ~15% pricier</span></label>
+      <input type="number" id="nl_col" value="1.0" step="0.05" min="0.5" max="2.5" inputmode="decimal">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📊 Netherlands vs Hong Kong</h2>
+    <div class="sub" id="moveScope"></div>
+    <div class="cmp" id="moveTable"></div>
+    <div class="advice" id="moveVerdict"></div>
+    <div class="note">NL estimate uses 2026 rates; the 30% ruling stays 30% in 2026 (drops to 27% from 2027). HK figures come from your Salary tab. Treat both as planning estimates.</div>
+  </div>
+</div>
+
+</div>
+
+<div class="foot">
+  <svg class="bauhinia" width="34" height="34" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g fill="#e8243a">
+      <g id="petal"><path d="M50 50 C46 28 48 12 50 6 C52 12 54 28 50 50 Z"/><circle cx="50" cy="14" r="2.2" fill="#fff"/></g>
+      <use href="#petal" transform="rotate(72 50 50)"/><use href="#petal" transform="rotate(144 50 50)"/>
+      <use href="#petal" transform="rotate(216 50 50)"/><use href="#petal" transform="rotate(288 50 50)"/>
+    </g>
+    <circle cx="50" cy="50" r="4" fill="#ffcf4d"/>
+  </svg>
+  香港 · Estimates for planning only — not tax advice. HK 2025/26 salaries-tax &amp; MPF · NL 2026 box-1 rates. Your inputs save automatically on this device.
+</div>
+
+<script>
+/* ================= HK tax engine (2025/26) ================= */
+const ALLOW = { basic:132000, married:264000, child:130000, parent:50000 };
+const BANDS = [[50000,0.02],[50000,0.06],[50000,0.10],[50000,0.14],[Infinity,0.17]];
+function progTax(nci){let t=0,rem=Math.max(0,nci);for(const[w,r]of BANDS){const x=Math.min(rem,w);t+=x*r;rem-=x;if(rem<=0)break;}return t;}
+function stdTax(net){return net<=5000000?net*0.15:5000000*0.15+(net-5000000)*0.16;}
+function allowances(m,c,p){let a=m==='married'?ALLOW.married:ALLOW.basic;a+=c*ALLOW.child+p*ALLOW.parent;return a;}
+function grossAnnual(o){return o.month*o.periods+o.bonus+o.housing*12;}
+function mpfAnnual(mr){if(mr<7100)return 0;return Math.min(mr*0.05,1500)*12;}
+function computeTax(pkg,marital,children,parents,otherDed){
+  const gross=grossAnnual(pkg);
+  const monthlyRelevant=pkg.month+pkg.housing;
+  const mpf=mpfAnnual(monthlyRelevant);
+  const mpfDeduct=Math.min(mpf,18000);
+  const alw=allowances(marital,children,parents);
+  const netTotal=Math.max(0,gross-mpfDeduct-otherDed);
+  const nci=Math.max(0,netTotal-alw);
+  const prog=progTax(nci),std=stdTax(netTotal);
+  const tax=Math.min(prog,std);
+  const method=prog<=std?'Progressive':'Standard rate';
+  const net=gross-mpf-tax;
+  return {gross,mpf,alw,netTotal,nci,prog,std,tax,method,net,monthlyRelevant};
+}
+
+/* ================= NL tax estimate (2026) ================= */
+function nlArbeidskorting(L){ /* labour credit, approx 2025/26 bands */
+  if(L<=11490)return 0.08053*L;
+  if(L<=24820)return 925+0.30030*(L-11490);
+  if(L<=39957)return 4929+0.02258*(L-24820);
+  if(L<=124935)return Math.max(0,5271-0.0651*(L-39957));
+  return 0;
+}
+function nlGeneralCredit(inc){ /* algemene heffingskorting, approx */
+  const start=28406,max=3115;
+  if(inc<=start)return max;
+  return Math.max(0,max-0.06337*(inc-start));
+}
+function nlNetFromGross(gross,ruling){
+  const taxable=ruling?gross*0.70:gross;
+  const b1=38883,b2=78426;
+  let tax;
+  if(taxable<=b1)tax=taxable*0.3575;
+  else if(taxable<=b2)tax=b1*0.3575+(taxable-b1)*0.3756;
+  else tax=b1*0.3575+(b2-b1)*0.3756+(taxable-b2)*0.4950;
+  const credits=nlGeneralCredit(taxable)+nlArbeidskorting(taxable);
+  const taxAfter=Math.max(0,tax-credits);
+  return {net:gross-taxAfter,tax:taxAfter,taxable};
+}
+
+/* ================= helpers ================= */
+const $=id=>document.getElementById(id);
+const fxRate=()=>parseFloat($('fx').value)||9.09;
+const hk=n=>'HK$'+Math.round(n).toLocaleString('en-US');
+const eur=n=>'€'+Math.round(n).toLocaleString('en-US');
+const eurFromHk=n=>'€'+Math.round(n/fxRate()).toLocaleString('en-US');
+function num(id){return parseFloat($(id).value)||0;}
+function setField(id,val){const el=$(id);if(document.activeElement===el)return;el.value=val;el.classList.remove('synced');void el.offsetWidth;el.classList.add('synced');}
+let couple=false, nlMode='known';
+
+/* ================= persistence ================= */
+const STORE='hkPlannerV2';
+const SAVED_IDS=['fx','s_name','s_month','s_annual','s_periods','s_bonus','s_housing','s_other','s_marital','s_children','s_parents',
+  'm_name','m_month','m_annual','m_periods','m_bonus','m_housing','m_other',
+  'a_month','a_annual','a_periods','a_bonus','a_housing','bb_month','bb_annual','bb_periods','bb_bonus','bb_housing',
+  'nl_net','nl_per','nl_gross','nl_ruling','nl_col'];
+let saveT;
+function saveState(){
+  try{const o={fields:{},budget:budgetData,couple,nlMode};
+    SAVED_IDS.forEach(id=>{const el=$(id);if(el)o.fields[id]=el.value;});
+    localStorage.setItem(STORE,JSON.stringify(o));
+    const m=$('savedMsg');if(m){m.classList.add('show');clearTimeout(saveT);saveT=setTimeout(()=>m.classList.remove('show'),1200);}
+  }catch(e){}
+}
+function loadState(){
+  try{const raw=localStorage.getItem(STORE);if(!raw)return;const o=JSON.parse(raw);
+    if(o.fields)Object.entries(o.fields).forEach(([id,v])=>{const el=$(id);if(el&&v!=null)el.value=v;});
+    if(o.budget&&o.budget.housing)budgetData=o.budget;
+    if(typeof o.couple==='boolean')couple=o.couple;
+    if(o.nlMode)nlMode=o.nlMode;
+  }catch(e){}
+}
+function resetState(){try{localStorage.removeItem(STORE);}catch(e){}location.reload();}
+
+/* ================= tabs ================= */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');$(t.dataset.t).classList.add('active');
+  if(t.dataset.t==='budget')renderBudget();
+  if(t.dataset.t==='compare')renderCompare();
+  if(t.dataset.t==='move')renderMove();
+});
+
+/* ================= monthly <-> annual ================= */
+function ids(prefix){return{m:prefix+'_month',a:prefix+'_annual',p:prefix+'_periods'};}
+function fromMonthly(prefix){const k=ids(prefix);const p=num(k.p)||12;setField(k.a,Math.round(num(k.m)*p));}
+function fromAnnual(prefix){const k=ids(prefix);const p=num(k.p)||12;setField(k.m,Math.round(num(k.a)/p));}
+function fromPeriods(prefix){fromMonthly(prefix);}
+
+/* ================= packages ================= */
+function pkgOf(pre){return {month:num(pre+'_month'),periods:num(pre+'_periods'),bonus:num(pre+'_bonus'),housing:num(pre+'_housing')};}
+function salaryInputs(){return{pkg:pkgOf('s'),marital:$('s_marital').value,children:num('s_children'),parents:num('s_parents'),other:num('s_other')};}
+
+/* ================= household ================= */
+function household(over){
+  const p1=pkgOf('s'),p2=pkgOf('m');
+  if(over&&over.pre==='s')p1.month=over.month;
+  if(over&&over.pre==='m')p2.month=over.month;
+  const o1=num('s_other'),o2=num('m_other');
+  const children=num('s_children'),parents=num('s_parents');
+  const g1=grossAnnual(p1),g2=grossAnnual(p2);
+  const p1H=g1>=g2;
+  const r1=computeTax(p1,'single',p1H?children:0,p1H?parents:0,o1);
+  const r2=computeTax(p2,'single',p1H?0:children,p1H?0:parents,o2);
+  const mpf1=r1.mpf,mpf2=r2.mpf;
+  const jGross=g1+g2,jMpf=Math.min(mpf1,18000)+Math.min(mpf2,18000),jOther=o1+o2;
+  const jAllow=ALLOW.married+children*ALLOW.child+parents*ALLOW.parent;
+  const jNetTotal=Math.max(0,jGross-jMpf-jOther);
+  const jNci=Math.max(0,jNetTotal-jAllow);
+  const jTax=Math.min(progTax(jNci),stdTax(jNetTotal));
+  const sepTax=r1.tax+r2.tax;
+  return {r1,r2,gross:g1+g2,mpf:mpf1+mpf2,tax:sepTax,net:r1.net+r2.net,
+    jointSaving:Math.max(0,sepTax-jTax),jointNet:(g1+g2)-(mpf1+mpf2)-jTax};
+}
+/* current HK take-home (household if couple else single) */
+function hkTakeHome(){
+  if(couple){const H=household();return {netYr:H.net,scope:'household'};}
+  const i=salaryInputs();const r=computeTax(i.pkg,i.marital,i.children,i.parents,i.other);
+  return {netYr:r.net,scope:'your'};
+}
+
+/* ================= salary render ================= */
+function setHero(net){const m=net/12;
+  $('r_netMonth').textContent=hk(m);$('r_netMonthEur').textContent=eurFromHk(m)+' / month';
+  $('r_netYear').textContent=hk(net);$('r_netYearEur').textContent=eurFromHk(net)+' / year';}
+function netAtMonth(pre,m){
+  if(couple){const H=household({pre,month:m});return H.net;}
+  const i=salaryInputs();const r=computeTax({...i.pkg,month:m},i.marital,i.children,i.parents,i.other);return r.net;
+}
+function renderLadder(){
+  const who=couple?($('s_name').value||'person 1'):'me';
+  $('r_ladderTitle').textContent='🪜 What a counter gets '+who;
+  $('r_ladderSub').textContent=couple
+    ?'Household net per month as '+($('s_name').value||'person 1')+'’s base salary changes (the other stays fixed).'
+    :'Net monthly take-home at different base salaries (your current settings applied).';
+  const base=num('s_month'),steps=[-10000,-5000,0,5000,10000,15000,20000];
+  const col=couple?'Household net / month':'Net / month';
+  let html='<div class="cmp"><div class="h">'+($('s_name').value||'Monthly')+'’s monthly base</div><div class="h" style="text-align:right">'+col+'</div><div class="h" style="text-align:right">In EUR</div></div>';
+  steps.forEach(d=>{const m=base+d;if(m<=0)return;const net=netAtMonth('s',m);
+    const cur=d===0?'style="color:var(--gold);font-weight:800"':'';
+    html+='<div class="cmp"><div class="lab" '+cur+'>'+hk(m)+(d===0?' ← current':'')+'</div>'+
+      '<div class="num" '+cur+'>'+hk(net/12)+'</div><div class="num">'+eurFromHk(net/12)+'</div></div>';});
+  $('r_ladder').innerHTML=html;
+}
+function renderSalary(){
+  $('fxEcho').textContent=fxRate().toFixed(2);
+  if(couple)renderCouple();else renderSingle();
+  renderLadder();
+}
+function renderSingle(){
+  const i=salaryInputs();const r=computeTax(i.pkg,i.marital,i.children,i.parents,i.other);
+  $('r_title').textContent='✨ What you take home';
+  $('r_lbl1').textContent='Net monthly · after tax & MPF';$('r_lbl2').textContent='Net annual';
+  $('singleStats').style.display='block';$('coupleStats').style.display='none';$('r_advice').style.display='none';
+  setHero(r.net);
+  $('r_gross').innerHTML=hk(r.gross)+' <small>'+eurFromHk(r.gross)+'</small>';
+  $('r_mpf').textContent='−'+hk(r.mpf);
+  $('r_tax').innerHTML='−'+hk(r.tax)+' <small>'+eurFromHk(r.tax)+'</small>';
+  $('r_etr').textContent=(r.gross?(r.tax/r.gross*100).toFixed(1):0)+'%';
+  $('r_nci').textContent=hk(r.nci);
+  $('r_method').textContent=r.method+' (lower of the two)';
+  $('r_alwNote').innerHTML='Allowances applied: <b>'+hk(r.alw)+'</b> tax-free ('+
+    (i.marital==='married'?'married':'single')+(i.children?' + '+i.children+' child':'')+
+    (i.parents?' + '+i.parents+' parent':'')+'). You pay tax only on income above allowances + MPF.';
+  syncBudgetIncome(r.net/12,null);
+}
+function renderCouple(){
+  const H=household();
+  const n1=$('s_name').value||'Person 1',n2=$('m_name').value||'Person 2';
+  $('r_title').textContent='✨ Household take-home';
+  $('r_lbl1').textContent='Household net monthly';$('r_lbl2').textContent='Household net annual';
+  $('singleStats').style.display='none';$('coupleStats').style.display='block';
+  setHero(H.net);
+  const r1=H.r1,r2=H.r2;
+  const rows=[['Gross / yr',r1.gross,r2.gross,H.gross],['MPF / yr',-r1.mpf,-r2.mpf,-H.mpf],
+    ['Tax / yr',-r1.tax,-r2.tax,-H.tax],['Net / yr',r1.net,r2.net,H.net],['Net / mo',r1.net/12,r2.net/12,H.net/12]];
+  let html='<div class="cmp4"><div class="h l">&nbsp;</div><div class="h j1">'+n1+'</div><div class="h j2">'+n2+'</div><div class="h tot">Household</div></div>';
+  rows.forEach(rw=>{html+='<div class="cmp4"><div class="lab">'+rw[0]+'</div>'+
+    '<div class="num">'+hk(rw[1])+'</div><div class="num">'+hk(rw[2])+'</div><div class="num tot">'+hk(rw[3])+'</div></div>';});
+  html+='<div class="cmp4"><div class="lab">Net / mo (EUR)</div><div class="num">'+eurFromHk(r1.net/12)+'</div><div class="num">'+eurFromHk(r2.net/12)+'</div><div class="num tot">'+eurFromHk(H.net/12)+'</div></div>';
+  $('coupleStats').innerHTML=html;
+  const etr=H.gross?(H.tax/H.gross*100).toFixed(1):0;
+  $('r_alwNote').innerHTML='Each person is taxed individually with the basic allowance (HK$132,000). Shared child/parent allowances go to the higher earner. Household effective tax rate: <b>'+etr+'%</b>.';
+  if(H.jointSaving>500){$('r_advice').style.display='block';
+    $('r_advice').innerHTML='💡 <b>Joint assessment could save ~'+hk(H.jointSaving)+'/yr.</b> Because incomes are uneven, electing joint assessment would lift household net to about <b>'+hk(H.jointNet)+'/yr</b>. Ask IRD or a tax adviser.';
+  }else $('r_advice').style.display='none';
+  syncBudgetIncome(H.net/12,H);
+}
+
+/* ================= budget ================= */
+const DEFAULTS={
+  housing:[['Rent',28000],['Management fee',1500],['Electricity / water / gas',1200],['Internet + mobile',600]],
+  living:[['Groceries',6000],['Dining out',4000],['Transport (MTR / taxi / bus)',1500],['Household & misc',1500]],
+  lifestyle:[['Gym & wellness',1200],['Entertainment & travel fund',4000],['Healthcare / insurance',1500],['Monthly savings target',10000]],
+  oneoff:[['Rental deposit (2–3 months)',84000],['Agent fee (~half month)',14000],['Flights (2 people)',12000],['Shipping / furniture',30000]]
+};
+const COLORS={housing:'#22e0e0',living:'#27e3a0',lifestyle:'#ff2e88'};
+let budgetData=JSON.parse(JSON.stringify(DEFAULTS));
+let budgetIncome=0, hh=null;
+function syncBudgetIncome(m,H){budgetIncome=m;hh=H;if($('budget').classList.contains('active'))recalcBudget();}
+function rowEl(cat,idx,name,amt){
+  const d=document.createElement('div');d.className='exp';
+  d.innerHTML='<input class="nm" value="'+(''+name).replace(/"/g,'&quot;')+'"><input class="amt" type="number" value="'+amt+'" step="100" inputmode="numeric"><button class="del">×</button>';
+  d.querySelector('.nm').oninput=e=>{budgetData[cat][idx][0]=e.target.value;saveState();};
+  d.querySelector('.amt').oninput=e=>{budgetData[cat][idx][1]=parseFloat(e.target.value)||0;recalcBudget();saveState();};
+  d.querySelector('.del').onclick=()=>{budgetData[cat].splice(idx,1);renderBudget();saveState();};
+  return d;
+}
+function renderBudget(){
+  document.querySelectorAll('.card[data-cat]').forEach(card=>{
+    const cat=card.dataset.cat;const box=card.querySelector('.rows');box.innerHTML='';
+    budgetData[cat].forEach((r,i)=>box.appendChild(rowEl(cat,i,r[0],r[1])));
+    card.querySelector('.addbtn').onclick=()=>{budgetData[cat].push(['New item',0]);renderBudget();saveState();};
+  });
+  recalcBudget();
+}
+function catTotal(cat){return budgetData[cat].reduce((s,r)=>s+(r[1]||0),0);}
+function recalcBudget(){
+  $('b_incomeLbl').textContent=hh?'Household net monthly income':'Net monthly income (from Salary tab)';
+  $('b_income').innerHTML=hk(budgetIncome)+' <small style="color:var(--mut)">'+eurFromHk(budgetIncome)+'</small>';
+  if(hh){const n1=$('s_name').value||'Person 1',n2=$('m_name').value||'Person 2';
+    $('b_breakdown').innerHTML='👥 '+n1+': <b>'+hk(hh.r1.net/12)+'</b>/mo · '+n2+': <b>'+hk(hh.r2.net/12)+'</b>/mo';
+  }else $('b_breakdown').innerHTML='';
+  ['housing','living','lifestyle','oneoff'].forEach(cat=>{const card=document.querySelector('.card[data-cat="'+cat+'"]');if(card)card.querySelector('.ct').textContent=hk(catTotal(cat));});
+  $('oneoffEur').textContent=eurFromHk(catTotal('oneoff'));
+  const exp=catTotal('housing')+catTotal('living')+catTotal('lifestyle');
+  const left=budgetIncome-exp;
+  $('b_exp').textContent='−'+hk(exp);
+  $('b_left').innerHTML='<span class="'+(left>=0?'pos':'neg')+'">'+hk(left)+'</span>';
+  $('b_rate').textContent=budgetIncome>0?(left/budgetIncome*100).toFixed(0)+'% of net income':'—';
+  $('b_leftEur').innerHTML='<span class="'+(left>=0?'pos':'neg')+'">'+eurFromHk(left)+'</span>';
+  const bar=$('b_bar');bar.innerHTML='';const leg=$('b_legend');leg.innerHTML='';
+  const denom=Math.max(budgetIncome,exp,1);
+  [['housing','Housing'],['living','Living'],['lifestyle','Lifestyle']].forEach(([c,lbl])=>{
+    const v=catTotal(c);const el=document.createElement('i');
+    el.style.width=(v/denom*100)+'%';el.style.background=COLORS[c];el.style.boxShadow='0 0 10px '+COLORS[c];bar.appendChild(el);
+    const s=document.createElement('span');s.innerHTML='<span class="dot" style="background:'+COLORS[c]+'"></span>'+lbl+' '+hk(v);leg.appendChild(s);});
+  if(left>0){const el=document.createElement('i');el.style.width=(left/denom*100)+'%';el.style.background='#ffcf4d66';bar.appendChild(el);
+    const s=document.createElement('span');s.innerHTML='<span class="dot" style="background:#ffcf4d"></span>Savings '+hk(left);leg.appendChild(s);}
+  if(hh&&budgetIncome>0){const n1=$('s_name').value||'Person 1',n2=$('m_name').value||'Person 2';
+    const i1=hh.r1.net/12,i2=hh.r2.net/12,tot=i1+i2||1;
+    $('b_split').style.display='block';
+    $('b_split').innerHTML='⚖️ <b>Fair split of '+hk(exp)+' shared expenses</b> (by income share): '+
+      n1+' '+Math.round(i1/tot*100)+'% → <b>'+hk(exp*i1/tot)+'</b>/mo · '+n2+' '+Math.round(i2/tot*100)+'% → <b>'+hk(exp*i2/tot)+'</b>/mo.';
+  }else $('b_split').style.display='none';
+}
+
+/* ================= compare ================= */
+function cmpPkg(p){return {month:num(p+'_month'),periods:num(p+'_periods'),bonus:num(p+'_bonus'),housing:num(p+'_housing')};}
+function renderCompare(){
+  const i=salaryInputs();const mar=couple?'single':i.marital;
+  const A=computeTax(cmpPkg('a'),mar,i.children,i.parents,i.other);
+  const B=computeTax(cmpPkg('bb'),mar,i.children,i.parents,i.other);
+  const rows=[['Gross annual',A.gross,B.gross,0],['MPF',-A.mpf,-B.mpf,0],['Salaries tax',-A.tax,-B.tax,0],
+    ['Net annual',A.net,B.net,1],['Net / month',A.net/12,B.net/12,1],['Net / month (EUR)',A.net/12,B.net/12,2]];
+  let html='<div class="cmp"><div class="h">&nbsp;</div><div class="h" style="text-align:right;color:var(--neon-jade)">Offer A</div><div class="h" style="text-align:right;color:var(--neon-pink)">Offer B</div></div>';
+  rows.forEach(row=>{const lab=row[0],a=row[1],b=row[2],hi=row[3];const fmt=hi===2?eurFromHk:hk;const wa=hi&&a>b?'win':'',wb=hi&&b>a?'win':'';
+    html+='<div class="cmp"><div class="lab">'+lab+'</div><div class="num '+wa+'">'+fmt(a)+'</div><div class="num '+wb+'">'+fmt(b)+'</div></div>';});
+  $('cmpTable').innerHTML=html;
+  const dMonth=(B.net-A.net)/12,dYear=B.net-A.net,grossGap=B.gross-A.gross;
+  const keep=grossGap?((B.net-A.net)/grossGap*100):0;
+  $('cmpVerdict').innerHTML=dYear===0?'Both offers are identical.':
+    'Offer B nets you <b class="'+(dMonth>=0?'pos':'neg')+'">'+hk(dMonth)+' / month</b> ('+eurFromHk(dMonth)+
+    ') — <b>'+hk(dYear)+' / year</b> after tax &amp; MPF.'+
+    (grossGap>0?' Of every extra HK$ in gross pay, you keep about <b>'+keep.toFixed(0)+'%</b> after tax.':'');
+}
+
+/* ================= move check (NL vs HK) ================= */
+function renderMove(){
+  const col=parseFloat($('nl_col').value)||1;
+  let nlNetYr;
+  if(nlMode==='est'){const r=nlNetFromGross(num('nl_gross'),$('nl_ruling').value==='yes');nlNetYr=r.net;}
+  else{const v=num('nl_net');nlNetYr=$('nl_per').value==='month'?v*12:v;}
+  const hkT=hkTakeHome();const hkNetYrEur=hkT.netYr/fxRate();
+  $('moveScope').textContent='Comparing '+(hkT.scope==='household'?'household':'your')+' net take-home. HK side reflects your Salary tab.';
+  const nlMo=nlNetYr/12,hkMo=hkNetYrEur/12;
+  const rows=[['Net / month',nlMo,hkMo],['Net / year',nlNetYr,hkNetYrEur]];
+  let html='<div class="cmp"><div class="h">&nbsp;</div><div class="h" style="text-align:right;color:var(--nl-orange)">🇳🇱 NL</div><div class="h" style="text-align:right;color:var(--neon-cyan)">🇭🇰 HK</div></div>';
+  rows.forEach(r=>{const wn=r[1]>r[2]?'win':'',wh=r[2]>r[1]?'win':'';
+    html+='<div class="cmp"><div class="lab">'+r[0]+'</div><div class="num '+wn+'">'+eur(r[1])+'</div><div class="num '+wh+'">'+eur(r[2])+'</div></div>';});
+  $('moveTable').innerHTML=html;
+  const diff=hkMo-nlMo, hkAdj=hkMo/col, diffAdj=hkAdj-nlMo;
+  let v='In raw euros, Hong Kong is <b class="'+(diff>=0?'pos':'neg')+'">'+eur(Math.abs(diff))+'/month '+(diff>=0?'more':'less')+'</b> than the Netherlands ('+eur(Math.abs(diff*12))+'/yr).';
+  if(Math.abs(col-1)>0.001){
+    v+='<br>After adjusting for HK being '+col.toFixed(2)+'× the cost of living, your HK pay is worth about <b>'+eur(hkAdj)+'/month</b> in NL terms — '+
+      '<b class="'+(diffAdj>=0?'pos':'neg')+'">'+eur(Math.abs(diffAdj))+'/month '+(diffAdj>=0?'ahead':'behind')+'</b>.';
+  }else{
+    v+=' Set a cost-of-living multiplier above to compare real purchasing power.';
+  }
+  $('moveVerdict').innerHTML=v;
+}
+
+/* ================= mode toggles ================= */
+function setCouple(on){couple=on;
+  $('hh_single').classList.toggle('on',!on);$('hh_couple').classList.toggle('on',on);
+  $('person2').style.display=on?'block':'none';
+  $('maritalField').style.display=on?'none':'block';
+  $('sharedNote').textContent=on?'Household mode: each person taxed individually. Children/parents allowances auto-assigned to the higher earner.':'';
+  renderSalary();saveState();
+}
+function setNlMode(m){nlMode=m;
+  $('nl_known').classList.toggle('on',m==='known');$('nl_est').classList.toggle('on',m==='est');
+  $('nlKnownBox').style.display=m==='known'?'block':'none';
+  $('nlEstBox').style.display=m==='est'?'block':'none';
+  renderMove();saveState();
+}
+
+/* ================= wire ================= */
+function refreshAll(){renderSalary();if($('compare').classList.contains('active'))renderCompare();if($('move').classList.contains('active'))renderMove();}
+['s','m'].forEach(pre=>{
+  $(pre+'_month').addEventListener('input',()=>{fromMonthly(pre);refreshAll();});
+  $(pre+'_annual').addEventListener('input',()=>{fromAnnual(pre);refreshAll();});
+  $(pre+'_periods').addEventListener('input',()=>{fromPeriods(pre);refreshAll();});
+  $(pre+'_bonus').addEventListener('input',refreshAll);
+  $(pre+'_housing').addEventListener('input',refreshAll);
+  $(pre+'_other').addEventListener('input',refreshAll);
+});
+['s_name','m_name','s_marital','s_children','s_parents','fx'].forEach(id=>$(id).addEventListener('input',refreshAll));
+$('hh_single').addEventListener('click',()=>setCouple(false));
+$('hh_couple').addEventListener('click',()=>setCouple(true));
+['a','bb'].forEach(p=>{
+  $(p+'_month').addEventListener('input',()=>{fromMonthly(p);renderCompare();});
+  $(p+'_annual').addEventListener('input',()=>{fromAnnual(p);renderCompare();});
+  $(p+'_periods').addEventListener('input',()=>{fromPeriods(p);renderCompare();});
+  $(p+'_bonus').addEventListener('input',renderCompare);
+  $(p+'_housing').addEventListener('input',renderCompare);
+});
+['nl_net','nl_per','nl_gross','nl_ruling','nl_col'].forEach(id=>$(id).addEventListener('input',renderMove));
+$('nl_known').addEventListener('click',()=>setNlMode('known'));
+$('nl_est').addEventListener('click',()=>setNlMode('est'));
+$('resetBtn').addEventListener('click',()=>{if(confirm('Reset all inputs to defaults?'))resetState();});
+/* autosave on any input/change */
+document.addEventListener('input',()=>{clearTimeout(saveT);saveT=setTimeout(saveState,400);});
+document.addEventListener('change',saveState);
+
+function seedCompare(){const p=pkgOf('s');
+  $('a_month').value=Math.round(p.month);$('a_periods').value=p.periods;
+  $('a_bonus').value=p.bonus;$('a_housing').value=p.housing;$('a_annual').value=Math.round(p.month*p.periods);}
+
+/* ================= init ================= */
+loadState();
+$('hh_single').classList.toggle('on',!couple);$('hh_couple').classList.toggle('on',couple);
+$('person2').style.display=couple?'block':'none';$('maritalField').style.display=couple?'none':'block';
+$('sharedNote').textContent=couple?'Household mode: each person taxed individually. Children/parents allowances auto-assigned to the higher earner.':'';
+$('nl_known').classList.toggle('on',nlMode==='known');$('nl_est').classList.toggle('on',nlMode==='est');
+$('nlKnownBox').style.display=nlMode==='known'?'block':'none';$('nlEstBox').style.display=nlMode==='est'?'block':'none';
+const hadSaved=!!localStorage.getItem(STORE);
+if(!hadSaved)seedCompare();
+renderSalary();renderBudget();
+</script>
+</body>
+</html>
