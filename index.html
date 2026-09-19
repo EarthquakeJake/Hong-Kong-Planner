@@ -317,7 +317,7 @@ a{color:var(--neon-cyan)}
     <div class="advice" id="fp_soloHint" style="display:none;margin:0 0 14px">👥 Showing one person only.<button class="linkbtn" id="fp_addPartner">Add Maria → household view</button></div>
     <div class="small" id="fp_pkgs" style="margin-bottom:12px"></div>
     <div class="grid">
-      <div class="field"><label>Monthly rent (HK$)</label><input type="number" id="fp_rent" value="28000" step="500" min="0" inputmode="numeric"></div>
+      <div class="field"><label>Monthly rent (HK$)</label><input type="number" id="fp_rent" value="40000" step="500" min="0" inputmode="numeric"></div>
       <div class="field"><label>Rent tax deduction claimed by <span class="small">(max HK$100,000/yr)</span></label>
         <select id="fp_rentded"><option value="auto">Auto — whoever saves the most tax</option><option value="p1">Person 1 (sole tenant)</option><option value="p2">Person 2 (sole tenant)</option><option value="split">Split 50/50 (co-tenants)</option><option value="none">Don't claim</option></select></div>
       <div class="field" id="fp_splitField"><label>Split shared costs between us</label>
@@ -382,7 +382,7 @@ a{color:var(--neon-cyan)}
 
   <div class="card" data-cat="housing">
     <h2>🏙️ Housing &amp; utilities</h2>
-    <div class="exp"><input class="nm" value="Rent  🔗 linked to Full picture" disabled><input class="amt" type="number" id="b_rent" value="28000" step="500" min="0" inputmode="numeric"><span></span></div>
+    <div class="exp"><input class="nm" value="Rent  🔗 linked to Full picture" disabled><input class="amt" type="number" id="b_rent" value="40000" step="500" min="0" inputmode="numeric"><span></span></div>
     <div class="rows"></div><button class="addbtn">+ Add line</button>
     <div class="catTot">Subtotal: <b class="ct">—</b></div>
   </div>
@@ -576,7 +576,7 @@ function num(id){return parseFloat($(id).value)||0;}
 function setField(id,val){const el=$(id);if(document.activeElement===el)return;el.value=val;el.classList.remove('synced');void el.offsetWidth;el.classList.add('synced');}
 const esc=s=>(''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const sg=n=>(n<0?'−':'')+Math.round(Math.abs(n)).toLocaleString('en-US');
-let couple=false, nlMode='known', fpPeriod='month';
+let couple=true, nlMode='known', fpPeriod='month';
 
 /* ================= persistence ================= */
 const STORE='hkPlannerV2';
@@ -752,16 +752,16 @@ function renderCouple(){
 }
 
 /* ================= budget ================= */
+/* defaults = the estimator's figures for a couple in a HK$40,000 flat, so a fresh link only needs the pay details filled in */
+const DEFAULT_RENT=40000;
 const DEFAULTS={
-  housing:[['Management fee & rates (if not in rent)',1500],['Electricity / water / gas',1200],['Internet + mobile',600]],
-  living:[['Groceries',6000],['Dining out',4000],['Transport (MTR / taxi / bus)',1500],['Household & misc',1500]],
-  lifestyle:[['Gym & wellness',1200],['Entertainment & travel fund',4000],['Healthcare / insurance',1500],['Monthly savings target',10000]],
-  oneoff:[['Rental deposit (2–3 months)',84000],['Agent fee (~half month)',14000],['Flights (2 people)',12000],['Shipping / furniture',30000]],
+  ...estimateLines(2,DEFAULT_RENT),
   /* per-year amounts — placeholders to edit */
   annual:[['Flights home to NL (2 people)',16000],['Pension top-up (AOW gap / no NL pension accrual)',24000],['Top-up dental / travel insurance',4000],
     ['Home contents insurance',1500],['Tax adviser / NL M-form (migration year)',4000],['Bank & FX fees moving savings to EUR',2000],['Visa / HKID / admin',1000]]
 };
 const COLORS={housing:'#22e0e0',living:'#27e3a0',lifestyle:'#ff2e88',annual:'#ff8a3d'};
+DEFAULTS.lifestyle.push(['Monthly savings target',20000]);
 let budgetData=JSON.parse(JSON.stringify(DEFAULTS));
 let budgetIncome=0, hh=null;
 function syncBudgetIncome(m,H){budgetIncome=m;hh=H;if($('budget').classList.contains('active'))recalcBudget();}
@@ -831,16 +831,21 @@ function recalcBudget(){
 /* ================= budget estimator ================= */
 /* typical 2026 Hong Kong costs, mid-range expat lifestyle; per-person lines scale with household size,
    utilities with rent (as a proxy for flat size), the savings target with what a normal month leaves over */
+function estimateLines(n,rent){
+  const r100=x=>Math.round(x/100)*100;
+  return {
+    housing:[['Management fee & rates (usually included in rent — check the listing)',0],
+      ['Electricity / water / gas (aircon-heavy summers)',r100(700+rent*0.0175)],['Home internet + mobile plans',250+175*n],['Part-time cleaner, weekly (optional)',2000]],
+    living:[['Groceries',n>1?8000:4500],['Work lunches',2000*n],['Dining out & drinks',3000*n],
+      ['Transport (MTR / bus / taxi)',1250*n],['Clothing & personal care',1250*n],['Household & misc',n>1?2000:1200]],
+    lifestyle:[['Gym & wellness',1000*n],['Entertainment, hobbies & subscriptions',1250*n],
+      ['Regional travel fund',2500*n],['Healthcare out-of-pocket (GP, dental)',500*n]],
+    oneoff:[['Rental deposit (2 months, refundable)',rent*2],['Agent fee (half a month)',rent/2],['Tenancy stamp duty (your half)',r100(rent*12*0.0025)],
+      ['One-way flights',6000*n],['Serviced apartment, first 2–3 weeks',25000],['Furniture, shipping & home setup',40000],['Utility & internet deposits',2000]]
+  };
+}
 function estimateBudget(){
-  const n=couple?2:1, rent=num('fp_rent'), r100=x=>Math.round(x/100)*100;
-  budgetData.housing=[['Management fee & rates (usually included in rent — check the listing)',0],
-    ['Electricity / water / gas (aircon-heavy summers)',r100(700+rent*0.0175)],['Home internet + mobile plans',250+175*n],['Part-time cleaner, weekly (optional)',2000]];
-  budgetData.living=[['Groceries',n>1?8000:4500],['Work lunches',2000*n],['Dining out & drinks',3000*n],
-    ['Transport (MTR / bus / taxi)',1250*n],['Clothing & personal care',1250*n],['Household & misc',n>1?2000:1200]];
-  budgetData.lifestyle=[['Gym & wellness',1000*n],['Entertainment, hobbies & subscriptions',1250*n],
-    ['Regional travel fund',2500*n],['Healthcare out-of-pocket (GP, dental)',500*n]];
-  budgetData.oneoff=[['Rental deposit (2 months, refundable)',rent*2],['Agent fee (half a month)',rent/2],['Tenancy stamp duty (your half)',r100(rent*12*0.0025)],
-    ['One-way flights',6000*n],['Serviced apartment, first 2–3 weeks',25000],['Furniture, shipping & home setup',40000],['Utility & internet deposits',2000]];
+  Object.assign(budgetData,estimateLines(couple?2:1,num('fp_rent')));
   /* savings target: ~85% of what a normal month (no 13th month / bonus) leaves after tax set-aside and all spending */
   const H=couple?household():null, rs=couple?[H.r1,H.r2]:[singleCalc()], pk=couple?[pkgOf('s'),pkgOf('m')]:[pkgOf('s')];
   const bank=pk.reduce((s,p)=>s+p.month+p.housing,0)-rs.reduce((s,r)=>s+r.mpf+r.tax,0)/12;
