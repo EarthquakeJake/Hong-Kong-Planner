@@ -7,6 +7,16 @@ saves your inputs automatically in the browser.
 
 Everything runs in the browser — there is no server and no data leaves your device.
 
+## What's inside
+
+| Tab | What it does |
+|-----|--------------|
+| 💼 **Salary & Tax** | Take-home pay per person or household: salaries tax (2025/26 or 2026/27 allowances), MPF, 13th month, bonus, housing allowance. |
+| 💰 **Full picture** | The complete net picture from your final packages + rent, per person **and** combined, per month or per year: tax, MPF, rent, budgeted spending, hidden/annual costs → what is left to spend and save. Also shows the *monthly cash-flow reality* (HK has no tax withholding, 13th month/bonus arrive as lumps), a *first tax bill* timeline (final tax + provisional tax hit at once), the HK$100,000 domestic-rent deduction, and tips such as employer MPF and rental reimbursement schemes. |
+| 🏮 **Budget** | Editable monthly budget and one-off relocation costs. Rent is linked to the Full picture tab. |
+| ⚖️ **Offer Compare** | Two offers side by side, after tax & MPF. |
+| 🇳🇱→🇭🇰 **Move check** | Dutch net vs Hong Kong net, with a cost-of-living adjustment. |
+
 ---
 
 ## Files
@@ -79,6 +89,7 @@ republishes automatically within a minute.
 
 ## Disclaimer
 
-All figures are **planning estimates, not tax advice**. Built on Hong Kong 2025/26
-salaries-tax rules and MPF caps, and Netherlands 2026 box-1 rates. Verify with the IRD,
+All figures are **planning estimates, not tax advice**. Built on Hong Kong 2025/26 and
+2026/27 salaries-tax rules, MPF caps and the domestic-rent deduction, and Netherlands 2026
+box-1 rates. The hidden/annual cost lines are placeholders — replace them with your own. Verify with the IRD,
 the Belastingdienst, and your employer before making decisions.
