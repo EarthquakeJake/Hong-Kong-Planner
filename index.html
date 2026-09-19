@@ -332,8 +332,9 @@ a{color:var(--neon-cyan)}
         <select id="fp_split"><option value="income">By share of net income</option><option value="even">50 / 50</option></select></div>
       <div class="field"><label>First month of work in Hong Kong</label><input type="month" id="fp_start" value="2027-01"></div>
       <div class="field"><label>Employer rent refund scheme</label>
-        <select id="fp_rrs"><option value="none">Not used</option><option value="p1">Person 1 (employer refunds rent)</option><option value="p2">Person 2 (employer refunds rent)</option></select></div>
+        <select id="fp_rrs"><option value="none">Not used</option><option value="p1">Person 1 (employer refunds rent)</option><option value="p2">Person 2 (employer refunds rent)</option><option value="both">Both — share the refund</option></select></div>
       <div class="field" id="fp_rrsAmtField" style="display:none"><label>Rent refunded per month (HK$) <span class="small">empty = all of it</span></label><input type="number" id="fp_rrsAmt" value="" step="500" min="0" inputmode="numeric" placeholder="whole rent"></div>
+      <div class="field" id="fp_rrsShareField" style="display:none"><label>Person 1's share of the refund (%)</label><input type="number" id="fp_rrsShare" value="50" step="5" min="0" max="100" inputmode="numeric"></div>
       <div class="field"><label>Bonus / 13th month in the first tax year?</label>
         <select id="fp_y1lumps"><option value="auto">Auto — none if you start Jan–Mar</option><option value="prorata">Yes, pro rata</option><option value="none">No</option></select></div>
     </div>
@@ -623,7 +624,7 @@ const SAVED_IDS=['fx','s_name','s_month','s_annual','s_periods','s_bonus','s_hou
   'm_name','m_month','m_annual','m_periods','m_bonus','m_housing','m_other','m_erpct',
   'a_month','a_annual','a_periods','a_bonus','a_housing','bb_month','bb_annual','bb_periods','bb_bonus','bb_housing',
   'nl_net','nl_per','nl_gross','nl_ruling','nl_gross2','nl_ruling2','nl_col',
-  's_taxyear','fp_rent','fp_rentded','fp_split','fp_start','fp_rrs','fp_rrsAmt','fp_y1lumps'];
+  's_taxyear','fp_rent','fp_rentded','fp_split','fp_start','fp_rrs','fp_rrsAmt','fp_rrsShare','fp_y1lumps'];
 let saveT;
 function saveState(){
   try{const o={fields:{},budget:budgetData,couple,nlMode,fpPeriod,flagsV:1};
@@ -685,7 +686,9 @@ function employerPension(pre,r){return Math.max(r.mpfEr,num(pre+'_erpct')/100*r.
 function rentAnnual(){return num('fp_rent')*12;}
 function rentDedTotal(){return Math.min(rentAnnual(),RENT_DED_CAP);}
 function rrsState(){const who=$('fp_rrs').value;const amt=num('fp_rrsAmt')||num('fp_rent');
-  return {who,refund:who==='none'?0:Math.min(amt,num('fp_rent'))*12};}
+  const refund=who==='none'?0:Math.min(amt,num('fp_rent'))*12;
+  const sh=who==='both'?($('fp_rrsShare').value===''?50:Math.min(100,num('fp_rrsShare')))/100:(who==='p1'?1:0);
+  return {who,refund,rf1:refund*sh,rf2:refund*(1-sh)};}
 
 /* ================= household ================= */
 function household(over){
@@ -707,7 +710,7 @@ function household(over){
   const ded={p1:[tot,0],p2:[0,tot],split:[tot/2,tot/2],none:[0,0]};
   const mode=rrs.refund?'none':$('fp_rentded').value;
   const dedOpts=mode==='auto'?(p1H?['p1','p2','split']:['p2','p1','split']):[mode];
-  const rf1=rrs.who==='p1'?rrs.refund:0, rf2=rrs.who==='p2'?rrs.refund:0;
+  const rf1=rrs.rf1, rf2=rrs.rf2;
   let best,dedWho=mode;
   alOpts.forEach(al=>dedOpts.forEach(k=>{const c=calc(al,ded[k][0],ded[k][1],rf1,rf2);if(!best||c.tax<best.tax-0.5){best=c;dedWho=k;}}));
   const noDed=calc(best.al,0,0,rf1,rf2);
@@ -717,12 +720,16 @@ function household(over){
   const jNetTotal=Math.max(0,r1.assessable+r2.assessable-r1.mpfDeduct-r2.mpfDeduct-r1.otherDed-r2.otherDed);
   const jTax=afterReduction(Math.min(progTax(Math.max(0,jNetTotal-jAllow)),stdTax(jNetTotal)),ALLOW);
   const sepTax=best.tax;
-  /* what-if: employer refunds the whole rent for one of us (replaces the rent deduction) */
-  const rentYr=rentAnnual();
-  const w1=rentYr?calc(best.al,0,0,rentYr,0).tax:sepTax,w2=rentYr?calc(best.al,0,0,0,rentYr).tax:sepTax;
+  /* rent refund alternatives, each against the best result with the rent deduction and no refund:
+     the whole refund on one of us, or shared 50/50 (both are then charged the 10% rental value) */
+  const rentYr=rentAnnual(), R=rrs.refund||rentYr;
+  const bestOf=(dk,f1,f2)=>{let b;alOpts.forEach(al=>dk.forEach(k=>{const c=calc(al,ded[k][0],ded[k][1],f1,f2);if(!b||c.tax<b.tax-0.5)b=c;}));return b.tax;};
+  const um=$('fp_rentded').value, baseTax=bestOf(um==='auto'?['p1','p2','split']:[um],0,0);
+  const w1=R?bestOf(['none'],R,0):baseTax,w2=R?bestOf(['none'],0,R):baseTax,wb=R?bestOf(['none'],R/2,R/2):baseTax;
   return {r1,r2,gross:g1+g2,mpf:r1.mpf+r2.mpf,tax:sepTax,net:r1.net+r2.net,
     d1:best.d1,d2:best.d2,dedWho,alwWho:best.al,dedSaving:Math.max(0,noDed.tax-sepTax),rrsOn:rrs.refund>0,
-    rrsSaving:Math.max(0,sepTax-Math.min(w1,w2)),rrsWho:w1<=w2?1:2,
+    rrsSaving:Math.max(0,baseTax-Math.min(w1,w2)),rrsWho:w1<=w2?1:2,rrsAmt:R,rrsNow:baseTax-sepTax,
+    rrsAlt:{p1:baseTax-w1,p2:baseTax-w2,both:baseTax-wb},
     jointSaving:Math.max(0,sepTax-jTax),jointNet:(g1+g2)-(r1.mpf+r2.mpf)-jTax};
 }
 function singleDed(){const m=$('fp_rentded').value,t=rentDedTotal();
@@ -730,7 +737,7 @@ function singleDed(){const m=$('fp_rentded').value,t=rentDedTotal();
   return (m==='none'||m==='p2')?0:(m==='split'?t/2:t);}
 /* person 1 alone, with the rent deduction / rent refund applied */
 function singleCalc(pkgOver){const i=salaryInputs(),rrs=rrsState();
-  return computeTax(pkgOver||i.pkg,i.marital,i.children,i.parents,i.other+singleDed(),rrs.who==='p1'?rrs.refund:0);}
+  return computeTax(pkgOver||i.pkg,i.marital,i.children,i.parents,i.other+singleDed(),rrs.rf1);}
 /* current HK take-home (household if couple else single) */
 function hkTakeHome(){
   if(couple){const H=household();return {netYr:H.net,scope:'household'};}
@@ -965,6 +972,7 @@ function renderFull(){
   $('fp_addPartner').textContent='Add '+n2+' → household view';
   $('fp_splitField').style.display=couple?'block':'none';
   $('fp_rrsAmtField').style.display=$('fp_rrs').value==='none'?'none':'block';
+  $('fp_rrsShareField').style.display=$('fp_rrs').value==='both'?'block':'none';
   $('fp_rentded').disabled=$('fp_rrs').value!=='none';
   $('fp_perMonth').classList.toggle('on',fpPeriod==='month');$('fp_perYear').classList.toggle('on',fpPeriod==='year');
   $('fp_pkgs').innerHTML='📦 '+names.map((nm,i)=>'<b>'+esc(nm)+'</b>: '+hk(pk[i].month)+' × '+pk[i].periods+
@@ -1104,14 +1112,16 @@ function renderFull(){
     'MPF can generally be withdrawn early when you leave Hong Kong permanently (once, with a declaration and proof); employer contributions above the mandatory 5% usually vest over several years. If you stay in an overseas pension scheme you may be exempt from MPF altogether.');
   const base=couple?null:salaryInputs();
   const dedTot=couple?H.d1+H.d2:singleDed(), dedSave=couple?H.dedSaving:(dedTot?computeTax(base.pkg,base.marital,base.children,base.parents,base.other).tax-rs[0].tax:0);
-  const rrsOn=rrsState().refund>0&&(couple||rrsState().who==='p1');
-  if(rrsOn)tips.push('🏠 <b>Employer rent refund is switched on</b> (already included): the refunded rent is not taxed as pay; instead 10% of the remaining income is added as a rental value. It replaces the domestic rent deduction. Check the scheme’s cap, that the refund does not exceed the rent you actually pay, and that pension and bonus stay based on full salary.');
+  const rrsOn=rrsState().refund>0&&(couple||rrsState().rf1>0);
+  /* the same refund placed three ways, so the cost of an even split is visible */
+  const rrsCompare=couple&&H.rrsAmt?' For '+hk(H.rrsAmt/12)+'/month refunded, tax saved per year versus claiming the rent deduction: all on '+esc(n1)+' <b>'+hk(H.rrsAlt.p1)+'</b> · all on '+esc(n2)+' <b>'+hk(H.rrsAlt.p2)+'</b> · shared 50/50 <b>'+hk(H.rrsAlt.both)+'</b>. Sharing costs more because each of you is then charged the 10% rental value; if one of you takes the whole refund, you can even out the tax saving between yourselves.':'';
+  if(rrsOn)tips.push('🏠 <b>Employer rent refund is switched on</b> (already included): the refunded rent is not taxed as pay; instead 10% of the remaining income is added as a rental value. It replaces the domestic rent deduction. Check the scheme’s cap, that the refund does not exceed the rent you actually pay, and that pension and bonus stay based on full salary.'+(couple?' Your current setting saves <b>'+hk(H.rrsNow)+'/yr</b>.':'')+rrsCompare);
   else if(dedTot>0)tips.push('🏠 <b>Rent deduction: ~'+hk(dedSave)+'/yr less tax</b> (already included, assuming you qualify). '+
     (couple?'Claimed '+(H.dedWho==='split'?'50/50 as co-tenants':'by '+esc(H.dedWho==='p1'?n1:n2)+' as sole tenant')+'. One HK$100,000 ceiling applies per tenancy and is divided between co-tenants, so whose name is on the lease matters; married couples share one ceiling. ':'')+
     'Conditions: the tenancy agreement must be <b>stamped</b>, it is your main home, the landlord is not a relative, and you own no HK residential property.');
   else if(S.rent)tips.push('🏠 You are not claiming the <b>domestic rent deduction</b> (up to HK$100,000/yr off taxable income). Switch it on above if your tenancy will be stamped and you qualify.');
   const rrs=couple?H.rrsSaving:Math.max(0,rs[0].tax-computeTax(pk[0],rs[0].args[0],rs[0].args[1],rs[0].args[2],num('s_other'),rentAnnual()).tax);
-  if(!rrsOn&&rrs>500)tips.push('💡 <b>What if your employer refunds the rent? Up to ~'+hk(rrs)+'/yr less tax</b> — if '+(couple?esc(H.rrsWho===1?n1:n2)+'’s':'your')+' employer runs a rental reimbursement scheme that can cover the whole rent. Part of the existing salary is paid as a rent refund and taxed at only 10% of remaining income. Real schemes have caps and paperwork, so treat this as the upper bound; switch it on above to model your actual terms. It replaces the rent deduction (the figure is net of that).');
+  if(!rrsOn&&rrs>500)tips.push('💡 <b>What if your employer refunds the rent? Up to ~'+hk(rrs)+'/yr less tax</b> — if '+(couple?esc(H.rrsWho===1?n1:n2)+'’s':'your')+' employer runs a rental reimbursement scheme that can cover the whole rent. Part of the existing salary is paid as a rent refund and taxed at only 10% of remaining income. Real schemes have caps and paperwork, so treat this as the upper bound; switch it on above to model your actual terms. It replaces the rent deduction (the figure is net of that).'+rrsCompare);
   if(couple&&H.jointSaving>500)tips.push('💍 If you are married, <b>joint assessment</b> could save a further ~'+hk(H.jointSaving)+'/yr.');
   tips.push('🇳🇱 <b>Leaving the Netherlands:</b> you file an M-form for the migration year; for each year you are not insured you miss 2% of a full AOW state pension (voluntary insurance via the SVB may be possible), and you stop building Dutch employer pension. Dutch basic health insurance normally ends when you emigrate — check what your HK employer’s medical plan covers for both of you.');
   tips.push('📈 Hong Kong does not tax bank interest, dividends or capital gains on private investments, and has no VAT. Foreign withholding taxes on dividends can still apply — this planner does not model investments.');
@@ -1202,7 +1212,7 @@ $('hh_couple').addEventListener('click',()=>setCouple(true));
 $('s_taxyear').addEventListener('input',()=>{ALLOW=TAX_YEARS[$('s_taxyear').value]||ALLOW;refreshAll();});
 $('fp_rent').addEventListener('input',()=>{setField('b_rent',$('fp_rent').value);refreshAll();});
 $('b_rent').addEventListener('input',()=>{setField('fp_rent',$('b_rent').value);refreshAll();});
-['fp_rentded','fp_split','fp_start','fp_rrs','fp_rrsAmt','fp_y1lumps'].forEach(id=>$(id).addEventListener('input',refreshAll));
+['fp_rentded','fp_split','fp_start','fp_rrs','fp_rrsAmt','fp_rrsShare','fp_y1lumps'].forEach(id=>$(id).addEventListener('input',refreshAll));
 $('fp_perMonth').addEventListener('click',()=>setFpPeriod('month'));
 $('fp_perYear').addEventListener('click',()=>setFpPeriod('year'));
 $('fp_addPartner').addEventListener('click',()=>setCouple(true));
