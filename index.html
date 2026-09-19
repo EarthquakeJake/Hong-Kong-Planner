@@ -627,7 +627,7 @@ const SAVED_IDS=['fx','s_name','s_month','s_annual','s_periods','s_bonus','s_hou
   's_taxyear','fp_rent','fp_rentded','fp_split','fp_start','fp_rrs','fp_rrsAmt','fp_rrsShare','fp_y1lumps'];
 let saveT;
 function saveState(){
-  try{const o={fields:{},budget:budgetData,couple,nlMode,fpPeriod,flagsV:1};
+  try{const o={fields:{},budget:budgetData,couple,nlMode,fpPeriod,flagsV:2};
     SAVED_IDS.forEach(id=>{const el=$(id);if(el)o.fields[id]=el.value;});
     localStorage.setItem(STORE,JSON.stringify(o));
     const m=$('savedMsg');if(m){m.classList.add('show');clearTimeout(saveT);saveT=setTimeout(()=>m.classList.remove('show'),1200);}
@@ -644,10 +644,13 @@ function loadState(){
       if(ri>=0){$('fp_rent').value=budgetData.housing[ri][1]||0;budgetData.housing.splice(ri,1);}
     }
     /* older saves had no explicit row flags: seed them once from the names, after that only the toggle counts */
+    const isFee=r=>/\b(fees?|costs?)\b/i.test(r[0]);
     if(!o.flagsV){
-      ['housing','living','lifestyle','annual'].forEach(c=>budgetData[c].forEach(r=>{if(/\bsaving/i.test(r[0]))r[2]=true;}));
+      ['housing','living','lifestyle','annual'].forEach(c=>budgetData[c].forEach(r=>{if(/\bsaving/i.test(r[0])&&!isFee(r))r[2]=true;}));
       budgetData.oneoff.forEach(r=>{if(/deposit/i.test(r[0]))r[2]=true;});
     }
+    /* the first version of that seeding also caught fee lines that merely mention savings ("FX fees moving savings…") */
+    if(o.flagsV===1)['housing','living','lifestyle','annual'].forEach(c=>budgetData[c].forEach(r=>{if(r[2]&&isFee(r))r[2]=false;}));
     if(typeof o.couple==='boolean')couple=o.couple;
     if(o.nlMode)nlMode=o.nlMode;
     if(o.fpPeriod==='year')fpPeriod='year';
