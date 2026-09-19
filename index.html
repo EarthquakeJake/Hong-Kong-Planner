@@ -376,6 +376,8 @@ a{color:var(--neon-cyan)}
     <div class="sub">Edit any line. Income is pulled from the Salary tab. Deposit / one-offs are tracked separately below.</div>
     <div class="stat"><span class="k" id="b_incomeLbl">Net monthly income (from Salary tab)</span><span class="v pos" id="b_income">—</span></div>
     <div class="small" id="b_breakdown" style="margin-top:6px"></div>
+    <button class="addbtn" id="b_estimate" style="margin-top:14px">🪄 Estimate my budget from income &amp; rent</button>
+    <div class="small" id="b_estimateNote" style="margin-top:6px"></div>
   </div>
 
   <div class="card" data-cat="housing">
@@ -794,6 +796,7 @@ function recalcBudget(){
   if(hh){const n1=$('s_name').value||'Person 1',n2=$('m_name').value||'Person 2';
     $('b_breakdown').innerHTML='👥 '+n1+': <b>'+hk(hh.r1.net/12)+'</b>/mo · '+n2+': <b>'+hk(hh.r2.net/12)+'</b>/mo';
   }else $('b_breakdown').innerHTML='';
+  $('b_estimateNote').textContent='Fills the lines below with typical 2026 Hong Kong costs for '+(couple?'a couple':'one person')+' in a '+hk(num('fp_rent'))+'/month flat (mid-range expat lifestyle), and sets a savings target from what a normal month leaves over. Rent and the hidden/annual list are kept.';
   ['housing','living','lifestyle','oneoff','annual'].forEach(cat=>{const card=document.querySelector('.card[data-cat="'+cat+'"]');if(card)card.querySelector('.ct').textContent=hk(catTotal(cat));});
   $('oneoffEur').textContent=eurFromHk(catTotal('oneoff'));
   const hiddenMo=catTotal('annual')/12, rent=num('fp_rent');
@@ -823,6 +826,27 @@ function recalcBudget(){
       n1+' '+Math.round(i1/tot*100)+'% → <b>'+hk(exp*i1/tot)+'</b>/mo · '+n2+' '+Math.round(i2/tot*100)+'% → <b>'+hk(exp*i2/tot)+'</b>/mo.';
   }else $('b_split').style.display='none';
   if($('full').classList.contains('active'))renderFull();
+}
+
+/* ================= budget estimator ================= */
+/* typical 2026 Hong Kong costs, mid-range expat lifestyle; per-person lines scale with household size,
+   utilities with rent (as a proxy for flat size), the savings target with what a normal month leaves over */
+function estimateBudget(){
+  const n=couple?2:1, rent=num('fp_rent'), r100=x=>Math.round(x/100)*100;
+  budgetData.housing=[['Management fee & rates (usually included in rent — check the listing)',0],
+    ['Electricity / water / gas (aircon-heavy summers)',r100(700+rent*0.0175)],['Home internet + mobile plans',250+175*n],['Part-time cleaner, weekly (optional)',2000]];
+  budgetData.living=[['Groceries',n>1?8000:4500],['Work lunches',2000*n],['Dining out & drinks',3000*n],
+    ['Transport (MTR / bus / taxi)',1250*n],['Clothing & personal care',1250*n],['Household & misc',n>1?2000:1200]];
+  budgetData.lifestyle=[['Gym & wellness',1000*n],['Entertainment, hobbies & subscriptions',1250*n],
+    ['Regional travel fund',2500*n],['Healthcare out-of-pocket (GP, dental)',500*n]];
+  budgetData.oneoff=[['Rental deposit (2 months, refundable)',rent*2],['Agent fee (half a month)',rent/2],['Tenancy stamp duty (your half)',r100(rent*12*0.0025)],
+    ['One-way flights',6000*n],['Serviced apartment, first 2–3 weeks',25000],['Furniture, shipping & home setup',40000],['Utility & internet deposits',2000]];
+  /* savings target: ~85% of what a normal month (no 13th month / bonus) leaves after tax set-aside and all spending */
+  const H=couple?household():null, rs=couple?[H.r1,H.r2]:[singleCalc()], pk=couple?[pkgOf('s'),pkgOf('m')]:[pkgOf('s')];
+  const bank=pk.reduce((s,p)=>s+p.month+p.housing,0)-rs.reduce((s,r)=>s+r.mpf+r.tax,0)/12;
+  const S=spendTotals(), surplus=bank-S.annual-S.rent-S.housing-S.living-S.lifestyle;
+  budgetData.lifestyle.push(['Monthly savings target',Math.max(0,Math.round(surplus*0.85/1000)*1000)]);
+  renderBudget();saveState();
 }
 
 /* ================= full picture ================= */
@@ -1069,6 +1093,7 @@ $('b_rent').addEventListener('input',()=>{setField('fp_rent',$('b_rent').value);
 $('fp_perMonth').addEventListener('click',()=>setFpPeriod('month'));
 $('fp_perYear').addEventListener('click',()=>setFpPeriod('year'));
 $('fp_addPartner').addEventListener('click',()=>setCouple(true));
+$('b_estimate').addEventListener('click',()=>{if(confirm('Replace your monthly budget and one-off lines with estimates for '+(couple?'a couple':'one person')+' at '+hk(num('fp_rent'))+' rent?'))estimateBudget();});
 ['a','bb'].forEach(p=>{
   $(p+'_month').addEventListener('input',()=>{fromMonthly(p);renderCompare();});
   $(p+'_annual').addEventListener('input',()=>{fromAnnual(p);renderCompare();});
