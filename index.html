@@ -116,8 +116,11 @@ input.synced{animation:synced .6s ease}
 .hero .eur{color:var(--gold);font-size:13px;margin-top:3px}
 .pos{color:var(--good)} .neg{color:var(--bad)} .mid{color:var(--warn)}
 
-.exp{display:grid;grid-template-columns:1fr 120px 32px;gap:8px;align-items:center;margin-bottom:8px}
+.exp{display:grid;grid-template-columns:1fr 120px 32px 32px;gap:8px;align-items:center;margin-bottom:8px}
+@media(max-width:560px){.exp{grid-template-columns:1fr 92px 30px 30px;gap:6px}}
 .exp input.amt{text-align:right;font-variant-numeric:tabular-nums}
+.exp .flag{background:#0b1322;border:1px solid var(--line);border-radius:9px;cursor:pointer;height:40px;font-size:14px;padding:0;color:var(--mut);opacity:.35;filter:grayscale(1)}
+.exp .flag.on{opacity:1;filter:none;border-color:var(--gold);color:var(--gold);box-shadow:0 0 10px rgba(255,207,77,.25)}
 .exp .del{background:#0b1322;border:1px solid var(--line);color:var(--mut);border-radius:9px;cursor:pointer;height:40px;font-size:17px}
 .exp .del:hover{color:var(--bad);border-color:var(--bad)}
 .addbtn{background:transparent;border:1px dashed var(--line);color:var(--neon-jade);border-radius:11px;padding:10px;width:100%;cursor:pointer;font-size:13px;font-weight:700;margin-top:4px;transition:.15s}
@@ -248,10 +251,11 @@ a{color:var(--neon-cyan)}
       </div>
       <div class="linked">🔗 Monthly &amp; annual sync live</div>
       <div class="grid">
-        <div class="field"><label>Payments / year (12, or 13)</label><input type="number" id="s_periods" value="13" step="1" min="12" max="13" inputmode="numeric"></div>
+        <div class="field"><label>Payments / year (12–16)</label><input type="number" id="s_periods" value="13" step="1" min="12" max="16" inputmode="numeric"></div>
         <div class="field"><label>Annual bonus (HK$)</label><input type="number" id="s_bonus" value="0" step="5000" inputmode="numeric"></div>
         <div class="field"><label>Monthly housing allowance (HK$)</label><input type="number" id="s_housing" value="0" step="1000" inputmode="numeric"></div>
-        <div class="field"><label>Other annual deductions (HK$)</label><input type="number" id="s_other" value="0" step="1000" inputmode="numeric"></div>
+        <div class="field"><label>Other annual deductions (HK$)</label><input type="number" id="s_other" value="0" step="1000" min="0" inputmode="numeric"></div>
+        <div class="field"><label>Employer pension, % of base <span class="small">0 = mandatory MPF only</span></label><input type="number" id="s_erpct" value="0" step="1" min="0" max="30" inputmode="decimal"></div>
       </div>
     </div>
 
@@ -263,10 +267,11 @@ a{color:var(--neon-cyan)}
       </div>
       <div class="linked">🔗 Monthly &amp; annual sync live</div>
       <div class="grid">
-        <div class="field"><label>Payments / year (12, or 13)</label><input type="number" id="m_periods" value="13" step="1" min="12" max="13" inputmode="numeric"></div>
+        <div class="field"><label>Payments / year (12–16)</label><input type="number" id="m_periods" value="13" step="1" min="12" max="16" inputmode="numeric"></div>
         <div class="field"><label>Annual bonus (HK$)</label><input type="number" id="m_bonus" value="0" step="5000" inputmode="numeric"></div>
         <div class="field"><label>Monthly housing allowance (HK$)</label><input type="number" id="m_housing" value="0" step="1000" inputmode="numeric"></div>
-        <div class="field"><label>Other annual deductions (HK$)</label><input type="number" id="m_other" value="0" step="1000" inputmode="numeric"></div>
+        <div class="field"><label>Other annual deductions (HK$)</label><input type="number" id="m_other" value="0" step="1000" min="0" inputmode="numeric"></div>
+        <div class="field"><label>Employer pension, % of base <span class="small">0 = mandatory MPF only</span></label><input type="number" id="m_erpct" value="0" step="1" min="0" max="30" inputmode="decimal"></div>
       </div>
     </div>
 
@@ -274,9 +279,11 @@ a{color:var(--neon-cyan)}
       <div class="field" id="maritalField"><label>Marital status (for allowances)</label>
         <select id="s_marital"><option value="single">Single</option><option value="married">Married (claim married allowance)</option></select></div>
       <div class="field"><label>Children (total, for allowance)</label><input type="number" id="s_children" value="0" step="1" min="0" inputmode="numeric"></div>
-      <div class="field"><label>Dependent parents/grandparents (≥60)</label><input type="number" id="s_parents" value="0" step="1" min="0" inputmode="numeric"></div>
+      <div class="field"><label>Dependent parents/grandparents <span class="small">60+, living in HK</span></label><input type="number" id="s_parents" value="0" step="1" min="0" inputmode="numeric"></div>
+      <div class="field" id="alwWhoField"><label>Child / parent allowances claimed by</label>
+        <select id="s_alwWho"><option value="auto">Auto — lowest household tax</option><option value="p1">Person 1 (claims them)</option><option value="p2">Person 2 (claims them)</option></select></div>
       <div class="field"><label>Tax year (allowances)</label>
-        <select id="s_taxyear"><option value="2627">2026/27 — basic allowance HK$145,000</option><option value="2526">2025/26 — basic allowance HK$132,000</option></select></div>
+        <select id="s_taxyear"><option value="2627">2026/27 — basic allowance HK$145,000</option><option value="2526">2025/26 — basic HK$132,000, HK$3,000 tax reduction</option></select></div>
     </div>
     <div class="small" id="sharedNote"></div>
   </div>
@@ -290,10 +297,11 @@ a{color:var(--neon-cyan)}
 
     <div id="singleStats" style="margin-top:16px">
       <div class="stat"><span class="k">Gross annual income</span><span class="v" id="r_gross">—</span></div>
-      <div class="stat"><span class="k">MPF (employee, 5% capped HK$18,000/yr)</span><span class="v neg" id="r_mpf">—</span></div>
+      <div class="stat"><span class="k">MPF (employee, 5% per month, max HK$1,500)</span><span class="v neg" id="r_mpf">—</span></div>
       <div class="stat"><span class="k">Salaries tax</span><span class="v neg" id="r_tax">—</span></div>
       <div class="stat"><span class="k">Effective tax rate</span><span class="v" id="r_etr">—</span></div>
-      <div class="stat"><span class="k">Net chargeable income (taxed)</span><span class="v" id="r_nci">—</span></div>
+      <div class="stat"><span class="k">Net income after MPF &amp; deductions</span><span class="v" id="r_netTotal">—</span></div>
+      <div class="stat"><span class="k">Net chargeable income (after allowances)</span><span class="v" id="r_nci">—</span></div>
       <div class="stat"><span class="k">Tax method used</span><span class="v" id="r_method">—</span></div>
     </div>
 
@@ -323,7 +331,13 @@ a{color:var(--neon-cyan)}
       <div class="field" id="fp_splitField"><label>Split shared costs between us</label>
         <select id="fp_split"><option value="income">By share of net income</option><option value="even">50 / 50</option></select></div>
       <div class="field"><label>First month of work in Hong Kong</label><input type="month" id="fp_start" value="2027-01"></div>
+      <div class="field"><label>Employer rent refund scheme</label>
+        <select id="fp_rrs"><option value="none">Not used</option><option value="p1">Person 1 (employer refunds rent)</option><option value="p2">Person 2 (employer refunds rent)</option></select></div>
+      <div class="field" id="fp_rrsAmtField" style="display:none"><label>Rent refunded per month (HK$) <span class="small">empty = all of it</span></label><input type="number" id="fp_rrsAmt" value="" step="500" min="0" inputmode="numeric" placeholder="whole rent"></div>
+      <div class="field"><label>Bonus / 13th month in the first tax year?</label>
+        <select id="fp_y1lumps"><option value="auto">Auto — none if you start Jan–Mar</option><option value="prorata">Yes, pro rata</option><option value="none">No</option></select></div>
     </div>
+    <div class="small" style="margin-bottom:10px">The rent deduction assumes you qualify: a stamped tenancy for your main home, no HK property of your own, landlord not a relative. A rent refund scheme replaces it and only exists if your employer offers one.</div>
     <div class="hhToggle" style="margin:4px 0 0">
       <button id="fp_perMonth" class="on">Per month</button>
       <button id="fp_perYear">Per year</button>
@@ -334,7 +348,7 @@ a{color:var(--neon-cyan)}
     <h2>🧮 Complete net picture</h2>
     <div class="hero">
       <div class="box"><div class="lbl" id="fp_lbl1">Net income</div><div class="big" id="fp_h1">—</div><div class="eur" id="fp_h1s">—</div></div>
-      <div class="box"><div class="lbl" id="fp_lbl2">Potential savings</div><div class="big" id="fp_h2">—</div><div class="eur" id="fp_h2s">—</div></div>
+      <div class="box"><div class="lbl" id="fp_lbl2">Cash left to save</div><div class="big" id="fp_h2">—</div><div class="eur" id="fp_h2s">—</div></div>
     </div>
     <div class="bar" id="fp_bar"></div>
     <div class="legend" id="fp_legend"></div>
@@ -354,7 +368,7 @@ a{color:var(--neon-cyan)}
     <div class="sub">The classic newcomer trap: the first demand note charges your first (part) year <b>plus</b> provisional tax for the whole next year — at once.</div>
     <div class="fpt" id="fp_bill"></div>
     <div class="advice" id="fp_billAdvice"></div>
-    <div class="note">Timing is typical, not guaranteed: returns are issued in May, demand notes usually follow in autumn, with ~75% due around January and ~25% around April. Provisional tax for a part first year is normally annualised to 12 months. When you leave Hong Kong for good, all outstanding tax must be cleared before departure (your employer withholds final pay until it is).</div>
+    <div class="note">Timing is typical, not guaranteed: returns are issued in May, demand notes usually follow in autumn, with ~75% due around January and ~25% around April. Provisional tax for a part first year is normally annualised to 12 months. The first year assumes pay, deductions and the rent ceiling scale with the months worked (tenancy starting with the job) and no employee MPF in roughly the first month; each year uses its own allowances, and future rule changes are unknown. When you leave Hong Kong for good, all outstanding tax must be cleared before departure (your employer withholds final pay until it is).</div>
   </div>
 
   <div class="card" data-cat="annual">
@@ -373,7 +387,7 @@ a{color:var(--neon-cyan)}
 <div class="panel" id="budget">
   <div class="card">
     <h2>🏮 Monthly budget</h2>
-    <div class="sub">Edit any line. Income is pulled from the Salary tab. Deposit / one-offs are tracked separately below.</div>
+    <div class="sub">Edit any line. Income is pulled from the Salary tab. Tap 💰 on a line to mark it as savings rather than spending — every tab then treats it the same way. One-offs are tracked separately below.</div>
     <div class="stat"><span class="k" id="b_incomeLbl">Net monthly income (from Salary tab)</span><span class="v pos" id="b_income">—</span></div>
     <div class="small" id="b_breakdown" style="margin-top:6px"></div>
     <button class="addbtn" id="b_estimate" style="margin-top:14px">🪄 Estimate my budget from income &amp; rent</button>
@@ -382,7 +396,7 @@ a{color:var(--neon-cyan)}
 
   <div class="card" data-cat="housing">
     <h2>🏙️ Housing &amp; utilities</h2>
-    <div class="exp"><input class="nm" value="Rent  🔗 linked to Full picture" disabled><input class="amt" type="number" id="b_rent" value="40000" step="500" min="0" inputmode="numeric"><span></span></div>
+    <div class="exp"><input class="nm" value="Rent  🔗 linked to Full picture" disabled><input class="amt" type="number" id="b_rent" value="40000" step="500" min="0" inputmode="numeric"><span></span><span></span></div>
     <div class="rows"></div><button class="addbtn">+ Add line</button>
     <div class="catTot">Subtotal: <b class="ct">—</b></div>
   </div>
@@ -405,19 +419,23 @@ a{color:var(--neon-cyan)}
     <div class="legend" id="b_legend"></div>
     <div style="margin-top:14px">
       <div class="stat"><span class="k">Hidden &amp; annual costs ÷ 12 (Full picture tab)</span><span class="v neg" id="b_hidden">—</span></div>
-      <div class="stat"><span class="k">Total expenses</span><span class="v neg" id="b_exp">—</span></div>
-      <div class="stat"><span class="k">Leftover / savings each month</span><span class="v" id="b_left">—</span></div>
+      <div class="stat"><span class="k">Total spending (💰 savings lines excluded)</span><span class="v neg" id="b_exp">—</span></div>
+      <div class="stat"><span class="k">Cash left to save each month</span><span class="v" id="b_left">—</span></div>
       <div class="stat"><span class="k">Savings rate</span><span class="v" id="b_rate">—</span></div>
-      <div class="stat"><span class="k">Leftover in EUR</span><span class="v" id="b_leftEur">—</span></div>
+      <div class="stat"><span class="k">In EUR</span><span class="v" id="b_leftEur">—</span></div>
+      <div class="stat"><span class="k">Planned savings (💰 lines)</span><span class="v" id="b_planned">—</span></div>
+      <div class="stat"><span class="k">Unallocated after planned savings</span><span class="v" id="b_unalloc">—</span></div>
     </div>
+    <div class="note" id="b_warn" style="display:none"></div>
     <div class="advice" id="b_split" style="display:none"></div>
   </div>
 
   <div class="card" data-cat="oneoff">
     <h2>🚢 Relocation &amp; one-off costs</h2>
-    <div class="sub">Upfront cash needed around the move. Not part of the monthly budget.</div>
+    <div class="sub">One-off costs around the move. Not part of the monthly budget. Tap ↩ on a line you get back later (deposits).</div>
     <div class="rows"></div><button class="addbtn">+ Add line</button>
-    <div class="catTot">Total upfront: <b class="ct">—</b> · <span id="oneoffEur" class="small"></span></div>
+    <div class="catTot">Total one-offs: <b class="ct">—</b> · <span id="oneoffEur" class="small"></span></div>
+    <div class="catTot" id="oneoffCash"></div>
     <div class="note">HK landlords typically want <b>2–3 months' rent as deposit + 1 month upfront</b>, plus an agent fee around half a month's rent. <span id="oneoffCalc"></span></div>
   </div>
 </div>
@@ -425,10 +443,11 @@ a{color:var(--neon-cyan)}
 <div class="panel" id="compare">
   <div class="card">
     <h2>⚖️ Compare two offers</h2>
-    <div class="sub">For a single person's job offer. Offer A defaults to person 1's Salary-tab numbers. Set Offer B to your counter. Monthly &amp; annual sync in each column.</div>
+    <div class="sub">For person 1's job offer. Offer A is a snapshot of person 1's Salary-tab package — press the button to refresh it. Set Offer B to your counter. Monthly &amp; annual sync in each column.</div>
+    <button class="linkbtn" id="a_copy" style="margin:0 0 14px">↻ Copy person 1 from Salary tab into Offer A</button>
     <div class="grid">
       <div>
-        <h3 class="aLab">🟢 Offer A (current)</h3>
+        <h3 class="aLab">🟢 Offer A</h3>
         <div class="field"><label>Monthly base (HK$)</label><input type="number" id="a_month" value="60000" step="1000" inputmode="numeric"></div>
         <div class="field"><label>Annual base (HK$)</label><input type="number" id="a_annual" value="780000" step="10000" inputmode="numeric"></div>
         <div class="field"><label>Payments / year</label><input type="number" id="a_periods" value="13" inputmode="numeric"></div>
@@ -445,7 +464,7 @@ a{color:var(--neon-cyan)}
       </div>
     </div>
     <div class="linked">🔗 In each offer, monthly &amp; annual update each other live</div>
-    <div class="small">Personal allowances (marital status, children, parents) are taken from the Salary tab and applied to both.</div>
+    <div class="small" id="cmpScope"></div>
   </div>
 
   <div class="card">
@@ -457,8 +476,8 @@ a{color:var(--neon-cyan)}
 
 <div class="panel" id="move">
   <div class="card">
-    <h2>🇳🇱 → 🇭🇰 Is the move worth it?</h2>
-    <div class="sub">Compare your current Dutch take-home with Hong Kong. Most accurate if you enter the net you actually receive today.</div>
+    <h2>🇳🇱 → 🇭🇰 Take-home check</h2>
+    <div class="sub">Compares take-home pay only. It does not count pension contributions, relocation costs or what you actually spend in each country — so it is one input to the decision, not the answer. Most accurate if you enter the net you actually receive today.</div>
     <div class="hhToggle">
       <button id="nl_known" class="on">I know my NL net</button>
       <button id="nl_est">Estimate from gross</button>
@@ -468,14 +487,18 @@ a{color:var(--neon-cyan)}
         <div class="field"><label>Current Dutch net salary (€)</label><input type="number" id="nl_net" value="3500" step="100" inputmode="numeric"></div>
         <div class="field"><label>This is…</label><select id="nl_per"><option value="month">per month</option><option value="year">per year</option></select></div>
       </div>
-      <div class="small">Use your take-home after Dutch tax. For a couple, enter your combined net to compare with HK household.</div>
+      <div class="small">Use your take-home after Dutch tax and pension deductions, and check whether holiday pay and bonuses are inside that figure. For a couple, enter your combined net to compare with the HK household.</div>
     </div>
     <div id="nlEstBox" style="display:none">
       <div class="grid">
-        <div class="field"><label>Annual gross salary (€)</label><input type="number" id="nl_gross" value="70000" step="1000" inputmode="numeric"></div>
+        <div class="field"><label>Your annual gross salary (€)</label><input type="number" id="nl_gross" value="70000" step="1000" inputmode="numeric"></div>
         <div class="field"><label>30% ruling?</label><select id="nl_ruling"><option value="no">No</option><option value="yes">Yes (30% tax-free)</option></select></div>
       </div>
-      <div class="small">Rough estimate: 2026 box-1 brackets + general &amp; labour tax credits. For accuracy use “I know my NL net”.</div>
+      <div id="nlEst2" style="display:none"><div class="grid">
+        <div class="field"><label>Partner's annual gross salary (€)</label><input type="number" id="nl_gross2" value="0" step="1000" min="0" inputmode="numeric"></div>
+        <div class="field"><label>Partner: 30% ruling?</label><select id="nl_ruling2"><option value="no">No</option><option value="yes">Yes (30% tax-free)</option></select></div>
+      </div></div>
+      <div class="small">Rough estimate: official 2026 box-1 brackets and general &amp; labour tax credits, full year, below AOW age, salary only — no pension deduction or other personal items. Each earner is taxed separately. The 30% ruling is capped at 30% of €262,000 and cannot push taxable salary below €48,013. For accuracy use “I know my NL net”.</div>
     </div>
     <div class="field" style="margin-top:8px">
       <label>Cost of living: HK vs NL <span class="small">1.0 = same · 1.15 = HK ~15% pricier</span></label>
@@ -488,7 +511,7 @@ a{color:var(--neon-cyan)}
     <div class="sub" id="moveScope"></div>
     <div class="cmp" id="moveTable"></div>
     <div class="advice" id="moveVerdict"></div>
-    <div class="note">NL estimate uses 2026 rates; the 30% ruling stays 30% in 2026 (drops to 27% from 2027). HK figures come from your Salary tab. Treat both as planning estimates.</div>
+    <div class="note">NL estimate uses 2026 rates. From 2027 the 30% ruling becomes 27% for newer users; people who already had it before 2024 keep 30% until it ends. HK figures come from your Salary tab. Treat both as planning estimates.</div>
   </div>
 </div>
 
@@ -507,55 +530,69 @@ a{color:var(--neon-cyan)}
 </div>
 
 <script>
-/* ================= HK tax engine (2025/26 & 2026/27) ================= */
+/* ================= HK tax engine (rules versioned per year of assessment) ================= */
 const TAX_YEARS = {
-  '2526':{ basic:132000, married:264000, child:130000, parent:50000 },
-  '2627':{ basic:145000, married:290000, child:140000, parent:55000 }
+  /* reduction: one-off 100% cut of FINAL tax, capped — never applied to provisional tax */
+  '2526':{ basic:132000, married:264000, child:130000, parent:50000, reduction:3000 },
+  '2627':{ basic:145000, married:290000, child:140000, parent:55000, reduction:0 }
 };
 let ALLOW = TAX_YEARS['2627'];
+const rulesForYearEnding=end=>TAX_YEARS[end<=2026?'2526':'2627']; /* later years: latest known rules */
 const RENT_DED_CAP = 100000; /* domestic rent deduction ceiling per tenancy per year */
 const BANDS = [[50000,0.02],[50000,0.06],[50000,0.10],[50000,0.14],[Infinity,0.17]];
 function progTax(nci){let t=0,rem=Math.max(0,nci);for(const[w,r]of BANDS){const x=Math.min(rem,w);t+=x*r;rem-=x;if(rem<=0)break;}return t;}
 function stdTax(net){return net<=5000000?net*0.15:5000000*0.15+(net-5000000)*0.16;}
-function allowances(m,c,p){let a=m==='married'?ALLOW.married:ALLOW.basic;a+=c*ALLOW.child+p*ALLOW.parent;return a;}
+function allowances(m,c,p,A){A=A||ALLOW;let a=m==='married'?A.married:A.basic;a+=c*A.child+p*A.parent;return a;}
 function grossAnnual(o){return o.month*o.periods+o.bonus+o.housing*12;}
-function mpfAnnual(mr){if(mr<7100)return 0;return Math.min(mr*0.05,1500)*12;}
+/* MPF per monthly contribution period: 5% of that month's relevant income, capped HK$1,500. The extra salary
+   payments are assumed to land in one month and the bonus in another. Below HK$7,100 only the employer pays. */
+const MPF_MIN=7100, MPF_CAP=1500;
+function mpfMonth(inc){const c=Math.min(inc*0.05,MPF_CAP);return {ee:inc>=MPF_MIN?c:0,er:c};}
+function mpfYear(pkg){
+  let ee=0,er=0;
+  for(let i=0;i<12;i++){
+    const m=mpfMonth(pkg.month+pkg.housing+(i===11?pkg.month*(pkg.periods-12):0)+(i===2?pkg.bonus:0));
+    ee+=m.ee;er+=m.er;
+  }
+  return {ee,er,eeReg:mpfMonth(pkg.month+pkg.housing).ee};
+}
 function taxCore(assessable,mpfDeduct,otherDed,alw){
   const netTotal=Math.max(0,assessable-mpfDeduct-otherDed);
   const nci=Math.max(0,netTotal-alw);
   const prog=progTax(nci),std=stdTax(netTotal);
   return {netTotal,nci,prog,std,tax:Math.min(prog,std),method:prog<=std?'Progressive':'Standard rate'};
 }
+const afterReduction=(t,A)=>Math.max(0,t-Math.min(t,A.reduction||0));
 /* rentRefund: annual rent refunded by the employer under a rental reimbursement scheme.
    The refund itself is not taxed; instead a "rental value" of 10% of the remaining income is. */
-function computeTax(pkg,marital,children,parents,otherDed,rentRefund){
+function computeTax(pkg,marital,children,parents,otherDed,rentRefund,rules){
+  const A=rules||ALLOW;
   const gross=grossAnnual(pkg);
-  const monthlyRelevant=pkg.month+pkg.housing;
-  const mpf=mpfAnnual(monthlyRelevant);
+  const M=mpfYear(pkg), mpf=M.ee;
   const mpfDeduct=Math.min(mpf,18000);
-  const alw=allowances(marital,children,parents);
+  const alw=allowances(marital,children,parents,A);
   const refund=Math.min(rentRefund||0,gross);
   const assessable=refund>0?(gross-refund)*1.10:gross;
   const c=taxCore(assessable,mpfDeduct,otherDed,alw);
-  const net=gross-mpf-c.tax;
-  return {gross,mpf,mpfDeduct,otherDed,assessable,alw,...c,net,monthlyRelevant};
+  const tax=afterReduction(c.tax,A);
+  return {...c,taxBefore:c.tax,tax,reduced:c.tax-tax,gross,mpf,mpfEr:M.er,mpfReg:M.eeReg,mpfDeduct,otherDed,assessable,alw,refund,
+    net:gross-mpf-tax,pkg,args:[marital,children,parents]};
 }
 
-/* ================= NL tax estimate (2026) ================= */
-function nlArbeidskorting(L){ /* labour credit, approx 2025/26 bands */
-  if(L<=11490)return 0.08053*L;
-  if(L<=24820)return 925+0.30030*(L-11490);
-  if(L<=39957)return 4929+0.02258*(L-24820);
-  if(L<=124935)return Math.max(0,5271-0.0651*(L-39957));
+/* ================= NL tax estimate (official 2026 tables, below AOW age, salary only) ================= */
+function nlArbeidskorting(L){
+  if(L<=11965)return 0.08324*L;
+  if(L<=25845)return 996+0.31009*(L-11965);
+  if(L<=45592)return 5300+0.01950*(L-25845);
+  if(L<=132920)return Math.max(0,5685-0.06510*(L-45592));
   return 0;
 }
-function nlGeneralCredit(inc){ /* algemene heffingskorting, approx */
-  const start=28406,max=3115;
-  if(inc<=start)return max;
-  return Math.max(0,max-0.06337*(inc-start));
-}
+function nlGeneralCredit(inc){return inc<=29736?3115:Math.max(0,3115-0.06398*(inc-29736));}
+const NL_RULING_CAP=262000, NL_RULING_NORM=48013; /* 2026: 30% of at most €262,000; taxable salary must stay above the norm */
 function nlNetFromGross(gross,ruling){
-  const taxable=ruling?gross*0.70:gross;
+  let exempt=0;
+  if(ruling)exempt=Math.max(0,Math.min(0.30*Math.min(gross,NL_RULING_CAP),gross-NL_RULING_NORM));
+  const taxable=gross-exempt;
   const b1=38883,b2=78426;
   let tax;
   if(taxable<=b1)tax=taxable*0.3575;
@@ -563,16 +600,18 @@ function nlNetFromGross(gross,ruling){
   else tax=b1*0.3575+(b2-b1)*0.3756+(taxable-b2)*0.4950;
   const credits=nlGeneralCredit(taxable)+nlArbeidskorting(taxable);
   const taxAfter=Math.max(0,tax-credits);
-  return {net:gross-taxAfter,tax:taxAfter,taxable};
+  return {net:gross-taxAfter,tax:taxAfter,taxable,exempt};
 }
 
 /* ================= helpers ================= */
 const $=id=>document.getElementById(id);
-const fxRate=()=>parseFloat($('fx').value)||9.09;
-const hk=n=>'HK$'+Math.round(n).toLocaleString('en-US');
-const eur=n=>'€'+Math.round(n).toLocaleString('en-US');
-const eurFromHk=n=>'€'+Math.round(n/fxRate()).toLocaleString('en-US');
-function num(id){return parseFloat($(id).value)||0;}
+/* every numeric input is a non-negative finite number; anything else reads as 0 */
+function num(id){const v=parseFloat($(id).value);return Number.isFinite(v)&&v>0?v:0;}
+const intOf=id=>Math.floor(num(id));
+const fxRate=()=>num('fx')||9.09;
+const hk=n=>(n<0?'−':'')+'HK$'+Math.round(Math.abs(n)).toLocaleString('en-US');
+const eur=n=>(n<0?'−':'')+'€'+Math.round(Math.abs(n)).toLocaleString('en-US');
+const eurFromHk=n=>eur(n/fxRate());
 function setField(id,val){const el=$(id);if(document.activeElement===el)return;el.value=val;el.classList.remove('synced');void el.offsetWidth;el.classList.add('synced');}
 const esc=s=>(''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const sg=n=>(n<0?'−':'')+Math.round(Math.abs(n)).toLocaleString('en-US');
@@ -580,14 +619,14 @@ let couple=true, nlMode='known', fpPeriod='month';
 
 /* ================= persistence ================= */
 const STORE='hkPlannerV2';
-const SAVED_IDS=['fx','s_name','s_month','s_annual','s_periods','s_bonus','s_housing','s_other','s_marital','s_children','s_parents',
-  'm_name','m_month','m_annual','m_periods','m_bonus','m_housing','m_other',
+const SAVED_IDS=['fx','s_name','s_month','s_annual','s_periods','s_bonus','s_housing','s_other','s_erpct','s_marital','s_children','s_parents','s_alwWho',
+  'm_name','m_month','m_annual','m_periods','m_bonus','m_housing','m_other','m_erpct',
   'a_month','a_annual','a_periods','a_bonus','a_housing','bb_month','bb_annual','bb_periods','bb_bonus','bb_housing',
-  'nl_net','nl_per','nl_gross','nl_ruling','nl_col',
-  's_taxyear','fp_rent','fp_rentded','fp_split','fp_start'];
+  'nl_net','nl_per','nl_gross','nl_ruling','nl_gross2','nl_ruling2','nl_col',
+  's_taxyear','fp_rent','fp_rentded','fp_split','fp_start','fp_rrs','fp_rrsAmt','fp_y1lumps'];
 let saveT;
 function saveState(){
-  try{const o={fields:{},budget:budgetData,couple,nlMode,fpPeriod};
+  try{const o={fields:{},budget:budgetData,couple,nlMode,fpPeriod,flagsV:1};
     SAVED_IDS.forEach(id=>{const el=$(id);if(el)o.fields[id]=el.value;});
     localStorage.setItem(STORE,JSON.stringify(o));
     const m=$('savedMsg');if(m){m.classList.add('show');clearTimeout(saveT);saveT=setTimeout(()=>m.classList.remove('show'),1200);}
@@ -602,6 +641,11 @@ function loadState(){
     if(o.fields&&o.fields.fp_rent==null){
       const ri=budgetData.housing.findIndex(r=>/^rent\b/i.test(r[0]));
       if(ri>=0){$('fp_rent').value=budgetData.housing[ri][1]||0;budgetData.housing.splice(ri,1);}
+    }
+    /* older saves had no explicit row flags: seed them once from the names, after that only the toggle counts */
+    if(!o.flagsV){
+      ['housing','living','lifestyle','annual'].forEach(c=>budgetData[c].forEach(r=>{if(/\bsaving/i.test(r[0]))r[2]=true;}));
+      budgetData.oneoff.forEach(r=>{if(/deposit/i.test(r[0]))r[2]=true;});
     }
     if(typeof o.couple==='boolean')couple=o.couple;
     if(o.nlMode)nlMode=o.nlMode;
@@ -623,58 +667,70 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
 
 /* ================= monthly <-> annual ================= */
 function ids(prefix){return{m:prefix+'_month',a:prefix+'_annual',p:prefix+'_periods'};}
-function fromMonthly(prefix){const k=ids(prefix);const p=num(k.p)||12;setField(k.a,Math.round(num(k.m)*p));}
-function fromAnnual(prefix){const k=ids(prefix);const p=num(k.p)||12;setField(k.m,Math.round(num(k.a)/p));}
+/* payments per year: whole number 12–16, anything else counts as 12 — the same value is used everywhere */
+function periodsOf(pre){const p=Math.round(num(pre+'_periods'));return p<12?12:Math.min(p,16);}
+/* the monthly field shows a rounded figure; when it is just the annual figure ÷ payments, calculate with the exact value */
+function monthOf(pre){const m=num(pre+'_month'),a=num(pre+'_annual'),p=periodsOf(pre);return a>0&&Math.round(a/p)===Math.round(m)?a/p:m;}
+function fromMonthly(prefix){const k=ids(prefix);setField(k.a,Math.round(num(k.m)*periodsOf(prefix)));}
+function fromAnnual(prefix){const k=ids(prefix);setField(k.m,Math.round(num(k.a)/periodsOf(prefix)));}
 function fromPeriods(prefix){fromMonthly(prefix);}
 
 /* ================= packages ================= */
-function pkgOf(pre){return {month:num(pre+'_month'),periods:num(pre+'_periods'),bonus:num(pre+'_bonus'),housing:num(pre+'_housing')};}
-function salaryInputs(){return{pkg:pkgOf('s'),marital:$('s_marital').value,children:num('s_children'),parents:num('s_parents'),other:num('s_other')};}
+function pkgOf(pre){return {month:monthOf(pre),periods:periodsOf(pre),bonus:num(pre+'_bonus'),housing:num(pre+'_housing')};}
+function salaryInputs(){return{pkg:pkgOf('s'),marital:$('s_marital').value,children:intOf('s_children'),parents:intOf('s_parents'),other:num('s_other')};}
+/* employer pension per year: the mandatory MPF, or a % of basic salary if the employer pays more (that rate includes the mandatory part) */
+function employerPension(pre,r){return Math.max(r.mpfEr,num(pre+'_erpct')/100*r.pkg.month*12);}
+
+/* rent, its tax deduction, and the employer rent-refund scheme */
+function rentAnnual(){return num('fp_rent')*12;}
+function rentDedTotal(){return Math.min(rentAnnual(),RENT_DED_CAP);}
+function rrsState(){const who=$('fp_rrs').value;const amt=num('fp_rrsAmt')||num('fp_rent');
+  return {who,refund:who==='none'?0:Math.min(amt,num('fp_rent'))*12};}
 
 /* ================= household ================= */
 function household(over){
-  const p1=pkgOf('s'),p2=pkgOf('m');
+  let p1=pkgOf('s');const p2=pkgOf('m');
+  if(over&&over.pkg)p1=over.pkg;
   if(over&&over.pre==='s')p1.month=over.month;
   if(over&&over.pre==='m')p2.month=over.month;
   const o1=num('s_other'),o2=num('m_other');
-  const children=num('s_children'),parents=num('s_parents');
-  const g1=grossAnnual(p1),g2=grossAnnual(p2);
-  const p1H=g1>=g2;
-  const c1=p1H?children:0,pa1=p1H?parents:0,c2=p1H?0:children,pa2=p1H?0:parents;
-  const calc=(d1,d2,rf1,rf2)=>{
-    const r1=computeTax(p1,'single',c1,pa1,o1+d1,rf1),r2=computeTax(p2,'single',c2,pa2,o2+d2,rf2);
-    return {r1,r2,d1,d2,tax:r1.tax+r2.tax};};
-  /* domestic rent deduction: one ceiling per tenancy — sole tenant claims it all, co-tenants split it */
-  const tot=rentDedTotal(),mode=$('fp_rentded').value;
-  const opts={p1:()=>calc(tot,0),p2:()=>calc(0,tot),split:()=>calc(tot/2,tot/2),none:()=>calc(0,0)};
+  const children=intOf('s_children'),parents=intOf('s_parents');
+  const g1=grossAnnual(p1),g2=grossAnnual(p2),p1H=g1>=g2;
+  const rrs=rrsState(),tot=rentDedTotal();
+  const calc=(al,d1,d2,rf1,rf2)=>{
+    const r1=computeTax(p1,'single',al==='p1'?children:0,al==='p1'?parents:0,o1+d1,rf1),
+          r2=computeTax(p2,'single',al==='p2'?children:0,al==='p2'?parents:0,o2+d2,rf2);
+    return {r1,r2,d1,d2,al,tax:r1.tax+r2.tax};};
+  /* family allowances: whoever they save the most tax for (gross pay alone doesn't decide that), unless chosen */
+  const alSel=$('s_alwWho').value, alOpts=alSel==='auto'?(p1H?['p1','p2']:['p2','p1']):[alSel];
+  /* rent deduction: one ceiling per tenancy — sole tenant claims it all, co-tenants split it. None while an employer refunds the rent. */
+  const ded={p1:[tot,0],p2:[0,tot],split:[tot/2,tot/2],none:[0,0]};
+  const mode=rrs.refund?'none':$('fp_rentded').value;
+  const dedOpts=mode==='auto'?(p1H?['p1','p2','split']:['p2','p1','split']):[mode];
+  const rf1=rrs.who==='p1'?rrs.refund:0, rf2=rrs.who==='p2'?rrs.refund:0;
   let best,dedWho=mode;
-  if(mode==='auto'){
-    (p1H?['p1','p2','split']:['p2','p1','split']).forEach(k=>{const c=opts[k]();if(!best||c.tax<best.tax-0.5){best=c;dedWho=k;}});
-  }else best=opts[mode]();
-  const noDed=opts.none();
+  alOpts.forEach(al=>dedOpts.forEach(k=>{const c=calc(al,ded[k][0],ded[k][1],rf1,rf2);if(!best||c.tax<best.tax-0.5){best=c;dedWho=k;}}));
+  const noDed=calc(best.al,0,0,rf1,rf2);
   const {r1,r2}=best;
-  const mpf1=r1.mpf,mpf2=r2.mpf;
-  const jGross=g1+g2,jMpf=Math.min(mpf1,18000)+Math.min(mpf2,18000),jOther=o1+o2+best.d1+best.d2;
+  /* joint assessment (married couples only), for the tip */
   const jAllow=ALLOW.married+children*ALLOW.child+parents*ALLOW.parent;
-  const jNetTotal=Math.max(0,jGross-jMpf-jOther);
-  const jNci=Math.max(0,jNetTotal-jAllow);
-  const jTax=Math.min(progTax(jNci),stdTax(jNetTotal));
+  const jNetTotal=Math.max(0,r1.assessable+r2.assessable-r1.mpfDeduct-r2.mpfDeduct-r1.otherDed-r2.otherDed);
+  const jTax=afterReduction(Math.min(progTax(Math.max(0,jNetTotal-jAllow)),stdTax(jNetTotal)),ALLOW);
   const sepTax=best.tax;
-  /* what-if: employer rental reimbursement scheme for one of us (replaces the rent deduction) */
+  /* what-if: employer refunds the whole rent for one of us (replaces the rent deduction) */
   const rentYr=rentAnnual();
-  const rrs1=rentYr?calc(0,0,rentYr,0).tax:sepTax,rrs2=rentYr?calc(0,0,0,rentYr).tax:sepTax;
-  return {r1,r2,gross:g1+g2,mpf:mpf1+mpf2,tax:sepTax,net:r1.net+r2.net,
-    d1:best.d1,d2:best.d2,dedWho,dedSaving:Math.max(0,noDed.tax-sepTax),
-    rrsSaving:Math.max(0,sepTax-Math.min(rrs1,rrs2)),rrsWho:rrs1<=rrs2?1:2,
-    jointSaving:Math.max(0,sepTax-jTax),jointNet:(g1+g2)-(mpf1+mpf2)-jTax};
+  const w1=rentYr?calc(best.al,0,0,rentYr,0).tax:sepTax,w2=rentYr?calc(best.al,0,0,0,rentYr).tax:sepTax;
+  return {r1,r2,gross:g1+g2,mpf:r1.mpf+r2.mpf,tax:sepTax,net:r1.net+r2.net,
+    d1:best.d1,d2:best.d2,dedWho,alwWho:best.al,dedSaving:Math.max(0,noDed.tax-sepTax),rrsOn:rrs.refund>0,
+    rrsSaving:Math.max(0,sepTax-Math.min(w1,w2)),rrsWho:w1<=w2?1:2,
+    jointSaving:Math.max(0,sepTax-jTax),jointNet:(g1+g2)-(r1.mpf+r2.mpf)-jTax};
 }
-/* rent & its tax deduction */
-function rentAnnual(){return num('fp_rent')*12;}
-function rentDedTotal(){return Math.min(rentAnnual(),RENT_DED_CAP);}
-function singleDed(){const m=$('fp_rentded').value,t=rentDedTotal();return (m==='none'||m==='p2')?0:(m==='split'?t/2:t);}
-/* person 1 alone, with the rent deduction applied */
-function singleCalc(pkgOver){const i=salaryInputs();
-  return computeTax(pkgOver||i.pkg,i.marital,i.children,i.parents,i.other+singleDed());}
+function singleDed(){const m=$('fp_rentded').value,t=rentDedTotal();
+  if(rrsState().refund)return 0;
+  return (m==='none'||m==='p2')?0:(m==='split'?t/2:t);}
+/* person 1 alone, with the rent deduction / rent refund applied */
+function singleCalc(pkgOver){const i=salaryInputs(),rrs=rrsState();
+  return computeTax(pkgOver||i.pkg,i.marital,i.children,i.parents,i.other+singleDed(),rrs.who==='p1'?rrs.refund:0);}
 /* current HK take-home (household if couple else single) */
 function hkTakeHome(){
   if(couple){const H=household();return {netYr:H.net,scope:'household'};}
@@ -695,20 +751,25 @@ function renderLadder(){
   $('r_ladderSub').textContent=couple
     ?'Household net per month as '+($('s_name').value||'person 1')+'’s base salary changes (the other stays fixed).'
     :'Net monthly take-home at different base salaries (your current settings applied).';
-  const base=num('s_month'),steps=[-10000,-5000,0,5000,10000,15000,20000];
+  const base=Math.round(monthOf('s')),steps=[-10000,-5000,0,5000,10000,15000,20000];
   const col=couple?'Household net / month':'Net / month';
-  let html='<div class="cmp"><div class="h">'+($('s_name').value||'Monthly')+'’s monthly base</div><div class="h" style="text-align:right">'+col+'</div><div class="h" style="text-align:right">In EUR</div></div>';
-  steps.forEach(d=>{const m=base+d;if(m<=0)return;const net=netAtMonth('s',m);
+  let html='<div class="cmp"><div class="h">'+esc($('s_name').value||'Monthly')+'’s monthly base</div><div class="h" style="text-align:right">'+col+'</div><div class="h" style="text-align:right">In EUR</div></div>';
+  steps.forEach(d=>{const m=base+d;if(m<=0)return;const net=netAtMonth('s',d===0?monthOf('s'):m);
     const cur=d===0?'style="color:var(--gold);font-weight:800"':'';
     html+='<div class="cmp"><div class="lab" '+cur+'>'+hk(m)+(d===0?' ← current':'')+'</div>'+
       '<div class="num" '+cur+'>'+hk(net/12)+'</div><div class="num">'+eurFromHk(net/12)+'</div></div>';});
   $('r_ladder').innerHTML=html;
 }
+/* dropdown options that name a person follow the names typed on the Salary tab */
+function nameOptions(){const n1=$('s_name').value||'Person 1',n2=$('m_name').value||'Person 2';
+  ['fp_rentded','fp_rrs','s_alwWho'].forEach(id=>{const o=$(id).options;o[1].text=o[1].text.replace(/^[^(]*/,n1+' ');o[2].text=o[2].text.replace(/^[^(]*/,n2+' ');});}
 function renderSalary(){
   $('fxEcho').textContent=fxRate().toFixed(2);
+  nameOptions();
   if(couple)renderCouple();else renderSingle();
   renderLadder();
 }
+const reducedNote=r=>r.reduced>0?' <small>after '+hk(r.reduced)+' one-off '+($('s_taxyear').value==='2526'?'2025/26 ':'')+'reduction</small>':'';
 function renderSingle(){
   const i=salaryInputs();const r=singleCalc();
   $('r_title').textContent='✨ What you take home';
@@ -716,15 +777,20 @@ function renderSingle(){
   $('singleStats').style.display='block';$('coupleStats').style.display='none';$('r_advice').style.display='none';
   setHero(r.net);
   $('r_gross').innerHTML=hk(r.gross)+' <small>'+eurFromHk(r.gross)+'</small>';
-  $('r_mpf').textContent='−'+hk(r.mpf);
-  $('r_tax').innerHTML='−'+hk(r.tax)+' <small>'+eurFromHk(r.tax)+'</small>';
-  $('r_etr').textContent=(r.gross?(r.tax/r.gross*100).toFixed(1):0)+'%';
+  $('r_mpf').textContent=hk(-r.mpf);
+  $('r_tax').innerHTML=hk(-r.tax)+' <small>'+eurFromHk(r.tax)+'</small>'+reducedNote(r);
+  $('r_etr').textContent=r.gross?(r.tax/r.gross*100).toFixed(1)+'%':'—';
+  $('r_netTotal').textContent=hk(r.netTotal);
   $('r_nci').textContent=hk(r.nci);
   $('r_method').textContent=r.method+' (lower of the two)';
-  $('r_alwNote').innerHTML='Allowances applied: <b>'+hk(r.alw)+'</b> tax-free ('+
+  $('r_alwNote').innerHTML='Allowances: <b>'+hk(r.alw)+'</b> ('+
     (i.marital==='married'?'married':'single')+(i.children?' + '+i.children+' child':'')+
-    (i.parents?' + '+i.parents+' parent':'')+'). You pay tax only on income above allowances + MPF.'+
-    (singleDed()?' Also deducted: <b>'+hk(singleDed())+'</b> domestic rent (set on the Full picture tab).':'');
+    (i.parents?' + '+i.parents+' parent':'')+'). '+
+    (r.method==='Progressive'
+      ?'Progressive rates apply to what is left after MPF, deductions and these allowances.'
+      :'The <b>standard rate</b> is lower for you: 15% of income after MPF and deductions — allowances do not reduce that basis.')+
+    (singleDed()?' Deducted: <b>'+hk(singleDed())+'</b> domestic rent (Full picture tab; assumes an eligible, stamped tenancy).':'')+
+    (r.refund?' Rent refund scheme active: <b>'+hk(r.refund)+'</b>/yr refunded, taxed as a 10% rental value instead.':'');
   syncBudgetIncome(r.net/12,null);
 }
 function renderCouple(){
@@ -737,14 +803,18 @@ function renderCouple(){
   const r1=H.r1,r2=H.r2;
   const rows=[['Gross / yr',r1.gross,r2.gross,H.gross],['MPF / yr',-r1.mpf,-r2.mpf,-H.mpf],
     ['Tax / yr',-r1.tax,-r2.tax,-H.tax],['Net / yr',r1.net,r2.net,H.net],['Net / mo',r1.net/12,r2.net/12,H.net/12]];
-  let html='<div class="cmp4"><div class="h l">&nbsp;</div><div class="h j1">'+n1+'</div><div class="h j2">'+n2+'</div><div class="h tot">Household</div></div>';
+  let html='<div class="cmp4"><div class="h l">&nbsp;</div><div class="h j1">'+esc(n1)+'</div><div class="h j2">'+esc(n2)+'</div><div class="h tot">Household</div></div>';
   rows.forEach(rw=>{html+='<div class="cmp4"><div class="lab">'+rw[0]+'</div>'+
     '<div class="num">'+hk(rw[1])+'</div><div class="num">'+hk(rw[2])+'</div><div class="num tot">'+hk(rw[3])+'</div></div>';});
   html+='<div class="cmp4"><div class="lab">Net / mo (EUR)</div><div class="num">'+eurFromHk(r1.net/12)+'</div><div class="num">'+eurFromHk(r2.net/12)+'</div><div class="num tot">'+eurFromHk(H.net/12)+'</div></div>';
   $('coupleStats').innerHTML=html;
-  const etr=H.gross?(H.tax/H.gross*100).toFixed(1):0;
-  $('r_alwNote').innerHTML='Each person is taxed individually with the basic allowance ('+hk(ALLOW.basic)+'). Shared child/parent allowances go to the higher earner. Household effective tax rate: <b>'+etr+'%</b>.'+
-    (H.d1+H.d2?' Includes a <b>'+hk(H.d1+H.d2)+'</b> domestic-rent deduction (set on the Full picture tab).':'');
+  const fam=intOf('s_children')+intOf('s_parents')>0;
+  $('r_alwNote').innerHTML='Each person is taxed individually with the basic allowance ('+hk(ALLOW.basic)+').'+
+    (fam?' Child/parent allowances are claimed by <b>'+esc(H.alwWho==='p1'?n1:n2)+'</b>'+($('s_alwWho').value==='auto'?' (lowest household tax)':'')+'.':'')+
+    ' Household effective tax rate: <b>'+(H.gross?(H.tax/H.gross*100).toFixed(1)+'%':'—')+'</b>.'+
+    (H.d1+H.d2?' Includes a <b>'+hk(H.d1+H.d2)+'</b> domestic-rent deduction (Full picture tab; assumes an eligible, stamped tenancy).':'')+
+    (H.rrsOn?' Rent refund scheme active (Full picture tab).':'')+
+    (r1.reduced+r2.reduced>0?' After the one-off 2025/26 tax reduction of '+hk(r1.reduced+r2.reduced)+'.':'');
   if(H.jointSaving>500){$('r_advice').style.display='block';
     $('r_advice').innerHTML='💡 <b>Joint assessment could save ~'+hk(H.jointSaving)+'/yr</b> (married couples only). Because incomes are uneven, electing joint assessment would lift household net to about <b>'+hk(H.jointNet)+'/yr</b>. Ask IRD or a tax adviser.';
   }else $('r_advice').style.display='none';
@@ -752,84 +822,92 @@ function renderCouple(){
 }
 
 /* ================= budget ================= */
+/* rows are [name, amount, flag]. flag = "this is savings, not spending" (monthly & annual lists) or "refundable" (one-off list) */
 /* defaults = the estimator's figures for a couple in a HK$40,000 flat, so a fresh link only needs the pay details filled in */
 const DEFAULT_RENT=40000;
 const DEFAULTS={
   ...estimateLines(2,DEFAULT_RENT),
   /* per-year amounts — placeholders to edit */
-  annual:[['Flights home to NL (2 people)',16000],['Pension top-up (AOW gap / no NL pension accrual)',24000],['Top-up dental / travel insurance',4000],
-    ['Home contents insurance',1500],['Tax adviser / NL M-form (migration year)',4000],['Bank & FX fees moving savings to EUR',2000],['Visa / HKID / admin',1000]]
+  annual:[['Flights home to NL',16000],['Pension top-up (AOW gap / no NL pension accrual)',24000,true],['Top-up dental / travel insurance',4000],
+    ['Home contents insurance',1500],['Bank & FX fees moving savings to EUR',2000],['Visa / HKID / admin',1000]]
 };
 const COLORS={housing:'#22e0e0',living:'#27e3a0',lifestyle:'#ff2e88',annual:'#ff8a3d'};
-DEFAULTS.lifestyle.push(['Monthly savings target',20000]);
+DEFAULTS.lifestyle.push(['Monthly savings target',20000,true]);
 let budgetData=JSON.parse(JSON.stringify(DEFAULTS));
 let budgetIncome=0, hh=null;
 function syncBudgetIncome(m,H){budgetIncome=m;hh=H;if($('budget').classList.contains('active'))recalcBudget();}
-function rowEl(cat,idx,name,amt){
+function rowEl(cat,idx,name,amt,flag){
   const d=document.createElement('div');d.className='exp';
-  d.innerHTML='<input class="nm" value="'+(''+name).replace(/"/g,'&quot;')+'"><input class="amt" type="number" value="'+amt+'" step="100" inputmode="numeric"><button class="del">×</button>';
+  const oneoff=cat==='oneoff';
+  d.innerHTML='<input class="nm" value="'+esc(name)+'"><input class="amt" type="number" value="'+amt+'" step="100" min="0" inputmode="numeric">'+
+    '<button class="flag'+(flag?' on':'')+'" title="'+(oneoff?'Refundable (you get it back)':'Counts as savings, not spending')+'">'+(oneoff?'↩':'💰')+'</button><button class="del">×</button>';
   d.querySelector('.nm').oninput=e=>{budgetData[cat][idx][0]=e.target.value;saveState();};
-  d.querySelector('.amt').oninput=e=>{budgetData[cat][idx][1]=parseFloat(e.target.value)||0;recalcBudget();saveState();};
+  d.querySelector('.amt').oninput=e=>{const v=parseFloat(e.target.value);budgetData[cat][idx][1]=Number.isFinite(v)&&v>0?v:0;recalcBudget();saveState();};
+  d.querySelector('.flag').onclick=e=>{const r=budgetData[cat][idx];r[2]=!r[2];e.target.classList.toggle('on',!!r[2]);recalcBudget();saveState();};
   d.querySelector('.del').onclick=()=>{budgetData[cat].splice(idx,1);renderBudget();saveState();};
   return d;
 }
 function renderBudget(){
   document.querySelectorAll('.card[data-cat]').forEach(card=>{
     const cat=card.dataset.cat;const box=card.querySelector('.rows');box.innerHTML='';
-    budgetData[cat].forEach((r,i)=>box.appendChild(rowEl(cat,i,r[0],r[1])));
+    budgetData[cat].forEach((r,i)=>box.appendChild(rowEl(cat,i,r[0],r[1],r[2])));
     card.querySelector('.addbtn').onclick=()=>{budgetData[cat].push(['New item',0]);renderBudget();saveState();};
   });
   recalcBudget();
 }
 function catTotal(cat){return (cat==='housing'?num('fp_rent'):0)+budgetData[cat].reduce((s,r)=>s+(r[1]||0),0);}
-/* budget lines named like "savings" are money kept, not spent */
-const isSaving=r=>/sav/i.test(r[0]);
-function spendTotals(){ /* monthly HK$ */
-  const sum=(cat,f)=>budgetData[cat].filter(f).reduce((s,r)=>s+(r[1]||0),0);
-  const spent=r=>!isSaving(r);
-  return {rent:num('fp_rent'),housing:sum('housing',spent),living:sum('living',spent),lifestyle:sum('lifestyle',spent),
-    planned:['housing','living','lifestyle'].reduce((s,c)=>s+sum(c,isSaving),0),annual:catTotal('annual')/12};
+/* one definition of spending vs savings for every tab (monthly HK$) */
+function spendTotals(){
+  const sum=(cat,saving)=>budgetData[cat].filter(r=>!!r[2]===saving).reduce((s,r)=>s+(r[1]||0),0);
+  return {rent:num('fp_rent'),housing:sum('housing',false),living:sum('living',false),lifestyle:sum('lifestyle',false),annual:sum('annual',false)/12,
+    planned:['housing','living','lifestyle'].reduce((s,c)=>s+sum(c,true),0)+sum('annual',true)/12};
 }
+function costShares(i1,i2){if($('fp_split').value==='even')return [0.5,0.5];const t=i1+i2;return t>0?[i1/t,i2/t]:[0.5,0.5];}
 function recalcBudget(){
   $('b_incomeLbl').textContent=hh?'Household net monthly income':'Net monthly income (from Salary tab)';
   $('b_income').innerHTML=hk(budgetIncome)+' <small style="color:var(--mut)">'+eurFromHk(budgetIncome)+'</small>';
   if(hh){const n1=$('s_name').value||'Person 1',n2=$('m_name').value||'Person 2';
-    $('b_breakdown').innerHTML='👥 '+n1+': <b>'+hk(hh.r1.net/12)+'</b>/mo · '+n2+': <b>'+hk(hh.r2.net/12)+'</b>/mo';
+    $('b_breakdown').innerHTML='👥 '+esc(n1)+': <b>'+hk(hh.r1.net/12)+'</b>/mo · '+esc(n2)+': <b>'+hk(hh.r2.net/12)+'</b>/mo';
   }else $('b_breakdown').innerHTML='';
-  $('b_estimateNote').textContent='Fills the lines below with typical 2026 Hong Kong costs for '+(couple?'a couple':'one person')+' in a '+hk(num('fp_rent'))+'/month flat (mid-range expat lifestyle), and sets a savings target from what a normal month leaves over. Rent and the hidden/annual list are kept.';
+  $('b_estimateNote').textContent='Fills the lines below with rough planning placeholders for '+(couple?'a couple':'one person')+' in a '+hk(num('fp_rent'))+'/month flat (mid-range expat lifestyle — my estimates, not verified prices), and sets a savings target from what a normal month leaves over. Rent and the hidden/annual list are kept.';
   ['housing','living','lifestyle','oneoff','annual'].forEach(cat=>{const card=document.querySelector('.card[data-cat="'+cat+'"]');if(card)card.querySelector('.ct').textContent=hk(catTotal(cat));});
-  $('oneoffEur').textContent=eurFromHk(catTotal('oneoff'));
-  const hiddenMo=catTotal('annual')/12, rent=num('fp_rent');
-  $('annualMo').textContent='≈ '+hk(hiddenMo)+' / month · '+eurFromHk(catTotal('annual'))+' / yr';
-  $('b_hidden').textContent='−'+hk(hiddenMo);
-  /* move-in cash derived from rent: 2-month deposit + first month + half-month agent fee + tenant's half of stamp duty (0.5% of a year's rent) */
-  $('oneoffCalc').innerHTML=rent?'At your rent of '+hk(rent)+': deposit '+hk(rent*2)+' + first month '+hk(rent)+' + agent '+hk(rent/2)+' + stamp duty ~'+hk(rent*12*0.005/2)+
-    ' = <b>'+hk(rent*3.5+rent*12*0.0025)+'</b> cash to get the keys (deposit is refundable).':'';
-  const exp=catTotal('housing')+catTotal('living')+catTotal('lifestyle')+hiddenMo;
-  const left=budgetIncome-exp;
-  $('b_exp').textContent='−'+hk(exp);
-  $('b_left').innerHTML='<span class="'+(left>=0?'pos':'neg')+'">'+hk(left)+'</span>';
-  $('b_rate').textContent=budgetIncome>0?(left/budgetIncome*100).toFixed(0)+'% of net income':'—';
-  $('b_leftEur').innerHTML='<span class="'+(left>=0?'pos':'neg')+'">'+eurFromHk(left)+'</span>';
+  const rent=num('fp_rent'),S=spendTotals();
+  $('annualMo').textContent='≈ '+hk(catTotal('annual')/12)+' / month · '+eurFromHk(catTotal('annual'))+' / yr';
+  /* one-offs: the first month's rent is cash you need on day one but not an extra cost (it is month 1 of the budget) */
+  const oneoff=catTotal('oneoff'),refundable=budgetData.oneoff.filter(r=>r[2]).reduce((s,r)=>s+(r[1]||0),0);
+  $('oneoffEur').textContent=eurFromHk(oneoff);
+  $('oneoffCash').innerHTML='Cash needed upfront incl. first month’s rent: <b>'+hk(oneoff+rent)+'</b> ('+eurFromHk(oneoff+rent)+') · of which refundable ↩ '+hk(refundable);
+  $('oneoffCalc').innerHTML=rent?'At your rent of '+hk(rent)+': deposit '+hk(rent*2)+' + first month '+hk(rent)+' + agent '+hk(rent/2)+' + stamp duty ~'+hk(rent*12*0.0025)+
+    ' = <b>'+hk(rent*3.5+rent*12*0.0025)+'</b> to get the keys. Stamp duty assumes a lease of more than 1 and up to 3 years (0.5% of a year’s rent, shared with the landlord); a lease of 1 year or less is 0.25% of the total rent. The lines above do not follow the rent automatically — edit them or re-run the estimator.':'';
+  const spend=S.rent+S.housing+S.living+S.lifestyle+S.annual, capacity=budgetIncome-spend, unalloc=capacity-S.planned;
+  $('b_hidden').textContent=hk(-S.annual);
+  $('b_exp').textContent=hk(-spend);
+  $('b_left').innerHTML='<span class="'+(capacity>=0?'pos':'neg')+'">'+hk(capacity)+'</span>';
+  $('b_rate').textContent=budgetIncome>0?(capacity/budgetIncome*100).toFixed(0)+'% of net income':'—';
+  $('b_planned').textContent=hk(S.planned);
+  $('b_unalloc').innerHTML='<span class="'+(unalloc>=0?'pos':'neg')+'">'+hk(unalloc)+'</span>';
+  $('b_leftEur').innerHTML='<span class="'+(capacity>=0?'pos':'neg')+'">'+eurFromHk(capacity)+'</span>';
+  const warn=$('b_warn');
+  if(capacity<0){warn.style.display='block';warn.innerHTML='⚠️ <b>Spending exceeds net income by '+hk(-capacity)+' a month.</b>';}
+  else if(unalloc<0){warn.style.display='block';warn.innerHTML='⚠️ Spending fits within income, but the 💰 savings lines ask for <b>'+hk(-unalloc)+' more</b> than a month leaves over — the target is underfunded, not the budget.';}
+  else warn.style.display='none';
   const bar=$('b_bar');bar.innerHTML='';const leg=$('b_legend');leg.innerHTML='';
-  const denom=Math.max(budgetIncome,exp,1);
-  [['housing','Housing'],['living','Living'],['lifestyle','Lifestyle'],['annual','Hidden']].forEach(([c,lbl])=>{
-    const v=c==='annual'?hiddenMo:catTotal(c);const el=document.createElement('i');
-    el.style.width=(v/denom*100)+'%';el.style.background=COLORS[c];el.style.boxShadow='0 0 10px '+COLORS[c];bar.appendChild(el);
-    const s=document.createElement('span');s.innerHTML='<span class="dot" style="background:'+COLORS[c]+'"></span>'+lbl+' '+hk(v);leg.appendChild(s);});
-  if(left>0){const el=document.createElement('i');el.style.width=(left/denom*100)+'%';el.style.background='#ffcf4d66';bar.appendChild(el);
-    const s=document.createElement('span');s.innerHTML='<span class="dot" style="background:#ffcf4d"></span>Savings '+hk(left);leg.appendChild(s);}
-  if(hh&&budgetIncome>0){const n1=$('s_name').value||'Person 1',n2=$('m_name').value||'Person 2';
-    const i1=hh.r1.net/12,i2=hh.r2.net/12,tot=i1+i2||1;
+  const funded=Math.max(0,Math.min(S.planned,capacity)), denom=Math.max(budgetIncome,spend,1);
+  [['Housing',S.rent+S.housing,COLORS.housing],['Living',S.living,COLORS.living],['Lifestyle',S.lifestyle,COLORS.lifestyle],['Hidden',S.annual,COLORS.annual],
+   ['Planned savings',funded,'#ffcf4d'],['Unallocated',Math.max(0,unalloc),'#ffcf4d66']].forEach(([lbl,v,c])=>{
+    if(v<=0)return;const el=document.createElement('i');el.style.width=(v/denom*100)+'%';el.style.background=c;bar.appendChild(el);
+    const s=document.createElement('span');s.innerHTML='<span class="dot" style="background:'+c+'"></span>'+lbl+' '+hk(v);leg.appendChild(s);});
+  if(hh&&spend>0){const n1=$('s_name').value||'Person 1',n2=$('m_name').value||'Person 2';
+    const w=costShares(hh.r1.net,hh.r2.net);
     $('b_split').style.display='block';
-    $('b_split').innerHTML='⚖️ <b>Fair split of '+hk(exp)+' shared expenses</b> (by income share): '+
-      n1+' '+Math.round(i1/tot*100)+'% → <b>'+hk(exp*i1/tot)+'</b>/mo · '+n2+' '+Math.round(i2/tot*100)+'% → <b>'+hk(exp*i2/tot)+'</b>/mo.';
+    $('b_split').innerHTML='⚖️ <b>Split of '+hk(spend)+' shared spending</b> ('+($('fp_split').value==='even'?'50/50':'by income share')+' — set on the Full picture tab; savings lines excluded): '+
+      esc(n1)+' '+Math.round(w[0]*100)+'% → <b>'+hk(spend*w[0])+'</b>/mo · '+esc(n2)+' '+Math.round(w[1]*100)+'% → <b>'+hk(spend*w[1])+'</b>/mo.';
   }else $('b_split').style.display='none';
   if($('full').classList.contains('active'))renderFull();
 }
 
 /* ================= budget estimator ================= */
-/* typical 2026 Hong Kong costs, mid-range expat lifestyle; per-person lines scale with household size,
+/* rough planning placeholders for a mid-range expat lifestyle (not verified prices); per-person lines scale with household size,
    utilities with rent (as a proxy for flat size), the savings target with what a normal month leaves over */
 function estimateLines(n,rent){
   const r100=x=>Math.round(x/100)*100;
@@ -840,17 +918,18 @@ function estimateLines(n,rent){
       ['Transport (MTR / bus / taxi)',1250*n],['Clothing & personal care',1250*n],['Household & misc',n>1?2000:1200]],
     lifestyle:[['Gym & wellness',1000*n],['Entertainment, hobbies & subscriptions',1250*n],
       ['Regional travel fund',2500*n],['Healthcare out-of-pocket (GP, dental)',500*n]],
-    oneoff:[['Rental deposit (2 months, refundable)',rent*2],['Agent fee (half a month)',rent/2],['Tenancy stamp duty (your half)',r100(rent*12*0.0025)],
-      ['One-way flights',6000*n],['Serviced apartment, first 2–3 weeks',25000],['Furniture, shipping & home setup',40000],['Utility & internet deposits',2000]]
+    oneoff:[['Rental deposit (2 months)',rent*2,true],['Agent fee (half a month)',rent/2],['Tenancy stamp duty (your half)',r100(rent*12*0.0025)],
+      ['One-way flights',6000*n],['Serviced apartment, first 2–3 weeks',25000],['Furniture, shipping & home setup',40000],['Utility & internet deposits',2000,true],
+      ['Tax adviser / NL M-form (migration year)',4000]]
   };
 }
 function estimateBudget(){
   Object.assign(budgetData,estimateLines(couple?2:1,num('fp_rent')));
   /* savings target: ~85% of what a normal month (no 13th month / bonus) leaves after tax set-aside and all spending */
-  const H=couple?household():null, rs=couple?[H.r1,H.r2]:[singleCalc()], pk=couple?[pkgOf('s'),pkgOf('m')]:[pkgOf('s')];
-  const bank=pk.reduce((s,p)=>s+p.month+p.housing,0)-rs.reduce((s,r)=>s+r.mpf+r.tax,0)/12;
+  const H=couple?household():null, rs=couple?[H.r1,H.r2]:[singleCalc()];
+  const bank=rs.reduce((s,r)=>s+r.pkg.month+r.pkg.housing-r.mpfReg-r.tax/12,0);
   const S=spendTotals(), surplus=bank-S.annual-S.rent-S.housing-S.living-S.lifestyle;
-  budgetData.lifestyle.push(['Monthly savings target',Math.max(0,Math.round(surplus*0.85/1000)*1000)]);
+  budgetData.lifestyle.push(['Monthly savings target',Math.max(0,Math.round(surplus*0.85/1000)*1000),true]);
   renderBudget();saveState();
 }
 
@@ -871,20 +950,22 @@ function firstYear(){
   const m=/^(\d{4})-(\d{1,2})/.exec($('fp_start').value||'');
   const y=m?+m[1]:new Date().getFullYear(),mo=m?Math.min(12,Math.max(1,+m[2])):1;
   const n1=mo>=4?16-mo:4-mo, end=mo>=4?y+1:y;
-  return {n1,end,label:(end-1)+'/'+(''+end).slice(2)};
+  return {n1,end,mo,label:(end-1)+'/'+(''+end).slice(2)};
 }
 function renderFull(){
   const n1=$('s_name').value||'Person 1',n2=$('m_name').value||'Person 2';
   const H=couple?household():null;
   const rs=couple?[H.r1,H.r2]:[singleCalc()];
-  const pk=couple?[pkgOf('s'),pkgOf('m')]:[pkgOf('s')];
+  const pres=couple?['s','m']:['s'];
+  const pk=rs.map(r=>r.pkg);
   const names=couple?[n1,n2]:[n1];
   const cols=couple?[n1,n2,'Household']:[n1];
   const N=rs.length, last=cols.length-1;
-  const sel=$('fp_rentded');sel.options[1].text=n1+' (sole tenant)';sel.options[2].text=n2+' (sole tenant)';
   $('fp_soloHint').style.display=couple?'none':'block';
   $('fp_addPartner').textContent='Add '+n2+' → household view';
   $('fp_splitField').style.display=couple?'block':'none';
+  $('fp_rrsAmtField').style.display=$('fp_rrs').value==='none'?'none':'block';
+  $('fp_rentded').disabled=$('fp_rrs').value!=='none';
   $('fp_perMonth').classList.toggle('on',fpPeriod==='month');$('fp_perYear').classList.toggle('on',fpPeriod==='year');
   $('fp_pkgs').innerHTML='📦 '+names.map((nm,i)=>'<b>'+esc(nm)+'</b>: '+hk(pk[i].month)+' × '+pk[i].periods+
     (pk[i].housing?' + '+hk(pk[i].housing)+'/mo housing':'')+(pk[i].bonus?' + '+hk(pk[i].bonus)+' bonus':'')+' = '+hk(rs[i].gross)+'/yr').join(' · ')+
@@ -892,37 +973,39 @@ function renderFull(){
 
   /* per-person vectors (+ household total as last column) */
   const vec=f=>{const a=rs.map(f);if(N>1)a.push(a[0]+a[1]);return a;};
-  const netTot=rs.reduce((s,r)=>s+r.net,0);
-  const w=rs.map(r=>N===1?1:($('fp_split').value==='even'?0.5:(netTot?r.net/netTot:0.5)));
+  const w=N===1?[1]:costShares(rs[0].net,rs[1].net);
   const shared=x=>vec((r,i)=>x*w[i]);
-  const pct=(a,b)=>a.map((x,i)=>b[i]?x/b[i]*100:0);
-  const fPct=x=>x.toFixed(1)+'%';
+  const pct=(a,b)=>a.map((x,i)=>b[i]>0?x/b[i]*100:null);
+  const fPct=x=>x==null?'—':x.toFixed(1)+'%';
   const S=spendTotals();
   const d=fpPeriod==='month'?12:1, per=fpPeriod==='month'?'month':'year';
   const A=v=>v.map(x=>x/d);             /* annual → chosen period */
   const neg=v=>v.map(x=>-x);
   const gross=vec(r=>r.gross),mpf=vec(r=>r.mpf),tax=vec(r=>r.tax),net=vec(r=>r.net);
+  const pension=vec((r,i)=>r.mpf+employerPension(pres[i],r));
   const rent=shared(S.rent*12),hous=shared(S.housing*12),liv=shared(S.living*12),life=shared(S.lifestyle*12),hid=shared(S.annual*12);
   const afterRent=net.map((x,i)=>x-rent[i]);
   const spend=rent.map((x,i)=>x+hous[i]+liv[i]+life[i]+hid[i]);
-  const save=net.map((x,i)=>x-spend[i]);
+  const save=net.map((x,i)=>x-spend[i]);           /* cash: may be negative */
+  const wealth=save.map((x,i)=>x+pension[i]);      /* cash + pension, deficits included */
   const planned=shared(S.planned*12);
 
   /* heroes */
   const who=couple?'Household':n1;
   $('fp_lbl1').textContent=who+' net income / '+per+' · after tax & MPF';
-  $('fp_lbl2').textContent=(couple?'Household p':'P')+'otential savings / '+per;
+  $('fp_lbl2').textContent=(couple?'Household c':'C')+'ash left to save / '+per;
   $('fp_h1').textContent=hk(net[last]/d);$('fp_h1s').textContent=eurFromHk(net[last]/d)+' / '+per;
-  $('fp_h2').textContent=(save[last]<0?'−':'')+hk(Math.abs(save[last]/d));
-  $('fp_h2s').textContent=eurFromHk(save[last]/d)+' / '+per+' · '+(net[last]?(save[last]/net[last]*100).toFixed(0):0)+'% of net income';
+  $('fp_h2').textContent=hk(save[last]/d);
+  $('fp_h2s').textContent=eurFromHk(save[last]/d)+' / '+per+' · '+(net[last]>0?(save[last]/net[last]*100).toFixed(0)+'% of net income':'—');
 
-  /* where every gross dollar goes */
+  /* where every gross dollar goes; when more goes out than comes in, the bar is scaled to the outflow and the deficit is named */
   const bar=$('fp_bar'),leg=$('fp_legend');bar.innerHTML='';leg.innerHTML='';
-  const G=Math.max(gross[last],1);
+  const out=tax[last]+mpf[last]+spend[last], G=Math.max(gross[last],out,1), gp=v=>gross[last]>0?(v/gross[last]*100).toFixed(0)+'%':'—';
   [['Tax',tax[last],'#ff4d6d'],['MPF',mpf[last],'#7e8db0'],['Rent',rent[last],'#22e0e0'],
    ['Living',hous[last]+liv[last]+life[last],'#27e3a0'],['Hidden',hid[last],'#ff8a3d'],['Savings',Math.max(0,save[last]),'#ffcf4d']].forEach(([lbl,v,c])=>{
     const el=document.createElement('i');el.style.width=(v/G*100)+'%';el.style.background=c;bar.appendChild(el);
-    const s=document.createElement('span');s.innerHTML='<span class="dot" style="background:'+c+'"></span>'+lbl+' '+(v/G*100).toFixed(0)+'%';leg.appendChild(s);});
+    const s=document.createElement('span');s.innerHTML='<span class="dot" style="background:'+c+'"></span>'+lbl+' '+gp(v);leg.appendChild(s);});
+  if(save[last]<0){const s=document.createElement('span');s.className='neg';s.innerHTML='Deficit '+gp(-save[last])+' of gross — more goes out than comes in';leg.appendChild(s);}
 
   /* main table */
   fpGrid($('fp_table'),cols,[
@@ -943,20 +1026,24 @@ function renderFull(){
     {l:'− Hidden & annual costs',v:A(neg(hid))},
     {l:'= Total spending incl. rent',v:A(neg(spend)),cls:'tot'},
     {sec:'Result'},
-    {l:'= Potential savings',v:A(save),cls:'hl'},
-    {l:'of which already planned',v:A(planned),cls:'dim'},
+    {l:'= Cash left to save',v:A(save),cls:'hl'},
+    {l:'of which planned (💰 lines)',v:A(planned),cls:'dim'},
     {l:'Savings rate (of net)',v:pct(save,net),fmt:fPct,cls:'dim'},
-    {l:'Potential savings in EUR',v:A(save),fmt:x=>(x<0?'−':'')+'€'+Math.round(Math.abs(x)/fxRate()).toLocaleString('en-US')}
+    {l:'Cash left to save in EUR',v:A(save),fmt:x=>eur(x/fxRate())},
+    {sec:'Pension · not cash you can spend'},
+    {l:'+ MPF / pension building up (yours + employer)',v:A(pension)},
+    {l:'= Total wealth change',v:A(wealth),cls:'tot'}
   ]);
-  $('fp_tableNote').innerHTML=(couple?'Rent and shared costs are split '+($('fp_split').value==='even'?'50/50':'by share of net income ('+Math.round(w[0]*100)+'% / '+Math.round(w[1]*100)+'%)')+'. ':'')+
-    'Spending lines come from the Budget tab; budget lines with “saving” in the name count as planned savings, not spending. Tax already reflects the rent deduction chosen above.';
+  $('fp_tableNote').innerHTML=(couple?'Rent and shared costs are split '+($('fp_split').value==='even'?'50/50':'by share of net income ('+Math.round(w[0]*100)+'% / '+Math.round(w[1]*100)+'%)')+' — the Budget tab uses the same split. ':'')+
+    'Spending lines come from the Budget tab; lines marked 💰 there are savings, not spending — the same definition on both tabs. Tax reflects the rent deduction or rent refund chosen above. Pension uses the employer % from the Salary tab; voluntary employer contributions may only become yours after a vesting period.';
 
   /* cash-flow reality (always monthly) */
-  const reg=vec((r,i)=>pk[i].month+pk[i].housing), mpfMo=vec(r=>r.mpf/12), taxMo=vec(r=>r.tax/12);
+  const reg=vec((r,i)=>pk[i].month+pk[i].housing), mpfMo=vec(r=>r.mpfReg), taxMo=vec(r=>r.tax/12);
   const bank=reg.map((x,i)=>x-mpfMo[i]);
   const monthlySpend=shared(S.rent+S.housing+S.living+S.lifestyle), hidMo=shared(S.annual);
   const surplus=bank.map((x,i)=>x-taxMo[i]-hidMo[i]-monthlySpend[i]);
-  const lumps=vec((r,i)=>pk[i].month*(pk[i].periods-12)+pk[i].bonus);
+  /* lump sums after the extra MPF taken in the months they are paid */
+  const lumps=vec((r,i)=>pk[i].month*(pk[i].periods-12)+pk[i].bonus-(r.mpf-12*r.mpfReg));
   fpGrid($('fp_cash'),cols,[
     {sec:'A normal month'},
     {l:'Regular pay (base + allowance)',v:reg},
@@ -967,82 +1054,104 @@ function renderFull(){
     {l:'− Rent & monthly spending',v:neg(monthlySpend)},
     {l:'= Normal-month surplus',v:surplus,cls:'hl'},
     {sec:'On top, once a year'},
-    {l:'13th month + bonus (lump sums)',v:lumps}
+    {l:'13th month + bonus, after MPF',v:lumps}
   ]);
   const sH=surplus[last],lH=lumps[last];
   $('fp_cashAdvice').innerHTML=(sH<0
     ?'⚠️ <b>A normal month runs '+hk(-sH)+' short.</b> You would be relying on the 13th month / bonus ('+hk(lH)+'/yr) to break even — trim spending or treat the lump sums as already spent.'
-    :'✅ In a normal month '+(couple?'you two':'you')+' can bank about <b>'+hk(sH)+'</b>. '+(lH>0?'The lump sums (<b>'+hk(lH)+'/yr</b>) come on top — their tax is already covered by the monthly set-aside, so they can go straight to savings.':''))+
+    :'✅ In a normal month '+(couple?'you two':'you')+' can bank about <b>'+hk(sH)+'</b>. '+(lH>0?'The lump sums (<b>'+hk(lH)+'/yr</b>) come on top — their tax is already inside the monthly set-aside.':''))+
     ' Put the tax set-aside (<b>'+hk(taxMo[last])+'/mo</b>) in a separate savings account from your very first pay cheque — it looks like spendable money, but it is not.';
 
-  /* first tax bill */
-  const fy=firstYear(), f=fy.n1/12;
-  const y1inc=vec(r=>r.gross*f);
-  const y1tax=vec(r=>taxCore(r.assessable*f,r.mpfDeduct*f,r.otherDed*f,r.alw).tax);
-  const prov75=tax.map(x=>x*0.75),prov25=tax.map(x=>x*0.25);
+  /* first tax bill: each year uses its own rules; the first year is part income, full allowances */
+  const fy=firstYear(), f=fy.n1/12, R1=rulesForYearEnding(fy.end), R2=rulesForYearEnding(fy.end+1);
+  const lm=$('fp_y1lumps').value, lumpsIn=lm==='prorata'||(lm==='auto'&&fy.mo>=4);
+  const y1=rs.map((r,i)=>{
+    const inc=(pk[i].month+pk[i].housing)*fy.n1+(lumpsIn?(pk[i].month*(pk[i].periods-12)+pk[i].bonus)*f:0);
+    const refund=Math.min(r.refund*f,inc);
+    const mpfDed=Math.min(r.mpfReg*Math.max(0,fy.n1-1),18000);   /* no employee MPF for roughly the first month */
+    const t=taxCore(refund>0?(inc-refund)*1.10:inc,mpfDed,r.otherDed*f,allowances(r.args[0],r.args[1],r.args[2],R1)).tax;
+    return {inc,tax:afterReduction(t,R1)};});
+  const sum2=a=>{if(N>1)a.push(a[0]+a[1]);return a;};
+  const y1inc=sum2(y1.map(x=>x.inc)), y1tax=sum2(y1.map(x=>x.tax));
+  const prov=sum2(rs.map(r=>computeTax(r.pkg,r.args[0],r.args[1],r.args[2],r.otherDed,r.refund,R2).taxBefore)); /* provisional: no one-off reductions */
+  const prov75=prov.map(x=>x*0.75),prov25=prov.map(x=>x*0.25);
   const bill1=y1tax.map((x,i)=>x+prov75[i]);
   const reserve=tax.map(x=>x/12*(fy.n1+9));
+  const spare=reserve.map((x,i)=>x-bill1[i]);
   fpGrid($('fp_bill'),cols,[
     {sec:'Year of assessment '+fy.label+' · '+fy.n1+' month'+(fy.n1>1?'s':'')+' worked'},
-    {l:'Income earned to 31 Mar '+fy.end,v:y1inc},
+    {l:'Income earned to 31 Mar '+fy.end+(lumpsIn?' (incl. pro-rata bonus)':' (no bonus yet)'),v:y1inc},
     {l:'Final tax for '+fy.label,v:y1tax},
     {l:'+ 75% provisional tax for next year',v:prov75},
     {l:'= 1st bill · around Jan '+(fy.end+1),v:bill1,cls:'hl'},
     {l:'2nd instalment · around Apr '+(fy.end+1),v:prov25,cls:'tot'},
     {sec:'If you set the tax aside monthly from day one'},
     {l:'Reserve built up by Jan '+(fy.end+1),v:reserve},
-    {l:'Spare after paying the 1st bill',v:reserve.map((x,i)=>x-bill1[i]),cls:'dim'}
+    {l:'Spare (+) or short (−) after the 1st bill',v:spare,cls:'dim'}
   ]);
   const b1=bill1[last];
-  $('fp_billAdvice').innerHTML='📅 Expect to pay about <b>'+hk(b1)+'</b> around January '+(fy.end+1)+' and another <b>'+hk(prov25[last])+'</b> around April '+(fy.end+1)+
-    ' — nothing is deducted from your salary before then. The first bill equals roughly <b>'+(net[last]?(b1/(net[last]/12)).toFixed(1):'0')+' months</b> of '+(couple?'household ':'')+'net income'+
-    (S.rent?' ('+(b1/S.rent).toFixed(1)+' months of rent)':'')+'. With the monthly set-aside above you will have it covered; after that it settles to about one year of tax per year ('+hk(tax[last])+').';
+  $('fp_billAdvice').innerHTML='📅 On these assumptions, expect roughly <b>'+hk(b1)+'</b> around January '+(fy.end+1)+' and another <b>'+hk(prov25[last])+'</b> around April '+(fy.end+1)+
+    ' — nothing is deducted from your salary before then. The first bill equals about <b>'+(net[last]>0?(b1/(net[last]/12)).toFixed(1):'—')+' months</b> of '+(couple?'household ':'')+'net income'+
+    (S.rent?' ('+(b1/S.rent).toFixed(1)+' months of rent)':'')+'. '+
+    (spare[last]>=0?'The monthly set-aside above would cover it, with about '+hk(spare[last])+' spare.':'The monthly set-aside above would be about <b>'+hk(-spare[last])+' short</b> by then — put more aside in the first year.')+
+    ' After that it settles to about one year of tax per year ('+hk(prov[last])+').';
 
   /* hidden upside & checks */
   const tips=[];
-  const mpfPot=mpf[last]*2;
-  tips.push('🏦 <b>MPF is forced savings, not a cost.</b> Your own contributions ('+hk(mpf[last])+'/yr) are matched by your employer'+(couple?'s':'')+' — about <b>'+hk(mpfPot)+'/yr</b> builds up in your MPF account'+(couple?'s':'')+' ('+eurFromHk(mpfPot)+'). You can withdraw it all when you permanently leave Hong Kong. Counting it, your true savings potential is ~<b>'+hk((Math.max(0,save[last])+mpfPot)/d)+'</b> per '+per+'.');
-  const dedTot=couple?H.d1+H.d2:singleDed(), dedSave=couple?H.dedSaving:(computeTax(pk[0],$('s_marital').value,num('s_children'),num('s_parents'),num('s_other')).tax-rs[0].tax);
-  if(dedTot>0)tips.push('🏠 <b>Rent deduction: ~'+hk(dedSave)+'/yr less tax</b> (already included). '+
-    (couple?'Claimed '+(H.dedWho==='split'?'50/50 as co-tenants':'by '+esc(H.dedWho==='p1'?n1:n2)+' as sole tenant')+'. One HK$100,000 ceiling applies per tenancy and is divided between co-tenants, so whose name is on the lease matters. ':'')+
-    'Conditions: the tenancy agreement must be <b>stamped</b>, it is your main home, and you own no HK residential property.');
-  else if(S.rent)tips.push('🏠 You are not claiming the <b>domestic rent deduction</b> (up to HK$100,000/yr off taxable income). Switch it on above if your tenancy will be stamped.');
-  const rrs=couple?H.rrsSaving:Math.max(0,rs[0].tax-computeTax(pk[0],$('s_marital').value,num('s_children'),num('s_parents'),num('s_other'),rentAnnual()).tax);
-  if(rrs>500)tips.push('💡 <b>Ask HR about a rental reimbursement scheme — worth ~'+hk(rrs)+'/yr extra.</b> If '+(couple?esc(H.rrsWho===1?n1:n2)+'’s':'your')+' employer pays part of the existing salary as a rent refund, the rent is taxed at only 10% of remaining income instead of in full. Same package, same cost to the employer, lower tax. It replaces the rent deduction above (the figure is net of that).');
+  const pen=pension[last], cash=save[last];
+  tips.push('🏦 <b>MPF is forced savings, not a cost.</b> Your own contributions ('+hk(mpf[last])+'/yr) plus your employer'+(couple?'s’':'’s')+' ('+hk(pen-mpf[last])+'/yr) build about <b>'+hk(pen)+'/yr</b> in your MPF account'+(couple?'s':'')+' ('+eurFromHk(pen)+'). '+
+    'Per '+per+': cash '+hk(cash/d)+' + pension '+hk(pen/d)+' = <b>'+hk((cash+pen)/d)+'</b> total wealth change'+(cash<0?' — the cash deficit is not cancelled by the pension, which you cannot spend':'')+'. '+
+    'MPF can generally be withdrawn early when you leave Hong Kong permanently (once, with a declaration and proof); employer contributions above the mandatory 5% usually vest over several years. If you stay in an overseas pension scheme you may be exempt from MPF altogether.');
+  const base=couple?null:salaryInputs();
+  const dedTot=couple?H.d1+H.d2:singleDed(), dedSave=couple?H.dedSaving:(dedTot?computeTax(base.pkg,base.marital,base.children,base.parents,base.other).tax-rs[0].tax:0);
+  const rrsOn=rrsState().refund>0&&(couple||rrsState().who==='p1');
+  if(rrsOn)tips.push('🏠 <b>Employer rent refund is switched on</b> (already included): the refunded rent is not taxed as pay; instead 10% of the remaining income is added as a rental value. It replaces the domestic rent deduction. Check the scheme’s cap, that the refund does not exceed the rent you actually pay, and that pension and bonus stay based on full salary.');
+  else if(dedTot>0)tips.push('🏠 <b>Rent deduction: ~'+hk(dedSave)+'/yr less tax</b> (already included, assuming you qualify). '+
+    (couple?'Claimed '+(H.dedWho==='split'?'50/50 as co-tenants':'by '+esc(H.dedWho==='p1'?n1:n2)+' as sole tenant')+'. One HK$100,000 ceiling applies per tenancy and is divided between co-tenants, so whose name is on the lease matters; married couples share one ceiling. ':'')+
+    'Conditions: the tenancy agreement must be <b>stamped</b>, it is your main home, the landlord is not a relative, and you own no HK residential property.');
+  else if(S.rent)tips.push('🏠 You are not claiming the <b>domestic rent deduction</b> (up to HK$100,000/yr off taxable income). Switch it on above if your tenancy will be stamped and you qualify.');
+  const rrs=couple?H.rrsSaving:Math.max(0,rs[0].tax-computeTax(pk[0],rs[0].args[0],rs[0].args[1],rs[0].args[2],num('s_other'),rentAnnual()).tax);
+  if(!rrsOn&&rrs>500)tips.push('💡 <b>What if your employer refunds the rent? Up to ~'+hk(rrs)+'/yr less tax</b> — if '+(couple?esc(H.rrsWho===1?n1:n2)+'’s':'your')+' employer runs a rental reimbursement scheme that can cover the whole rent. Part of the existing salary is paid as a rent refund and taxed at only 10% of remaining income. Real schemes have caps and paperwork, so treat this as the upper bound; switch it on above to model your actual terms. It replaces the rent deduction (the figure is net of that).');
   if(couple&&H.jointSaving>500)tips.push('💍 If you are married, <b>joint assessment</b> could save a further ~'+hk(H.jointSaving)+'/yr.');
-  tips.push('🇳🇱 <b>Leaving the Netherlands:</b> you file an M-form for the migration year (often a refund), stop building AOW (−2% state pension per year abroad, voluntary cover via SVB is possible) and lose Dutch employer pension accrual — HK’s mandatory employer MPF is only HK$1,500/mo. Dutch health insurance ends; check what your HK employer’s medical plan covers for both of you.');
-  tips.push('📈 Hong Kong has <b>no tax on savings interest, dividends or capital gains</b>, and no VAT — what you save compounds untaxed locally.');
+  tips.push('🇳🇱 <b>Leaving the Netherlands:</b> you file an M-form for the migration year; for each year you are not insured you miss 2% of a full AOW state pension (voluntary insurance via the SVB may be possible), and you stop building Dutch employer pension. Dutch basic health insurance normally ends when you emigrate — check what your HK employer’s medical plan covers for both of you.');
+  tips.push('📈 Hong Kong does not tax bank interest, dividends or capital gains on private investments, and has no VAT. Foreign withholding taxes on dividends can still apply — this planner does not model investments.');
   $('fp_tips').innerHTML=tips.map(t=>'<li>'+t+'</li>').join('');
 }
 function setFpPeriod(p){fpPeriod=p;renderFull();saveState();}
 
 /* ================= compare ================= */
-function cmpPkg(p){return {month:num(p+'_month'),periods:num(p+'_periods'),bonus:num(p+'_bonus'),housing:num(p+'_housing')};}
+/* in household mode each offer is run through the whole household, so allowances and the rent deduction are
+   assigned exactly as on the Salary tab and any knock-on effect on the partner's tax is counted */
 function renderCompare(){
-  const i=salaryInputs();const mar=couple?'single':i.marital;
-  const ded=i.other+(couple?household().d1:singleDed());
-  const A=computeTax(cmpPkg('a'),mar,i.children,i.parents,ded);
-  const B=computeTax(cmpPkg('bb'),mar,i.children,i.parents,ded);
+  const run=p=>{if(couple){const H=household({pkg:pkgOf(p)});return {r:H.r1,hhNet:H.net};}const r=singleCalc(pkgOf(p));return {r,hhNet:r.net};};
+  const a=run('a'),b=run('bb'),A=a.r,B=b.r;
   const rows=[['Gross annual',A.gross,B.gross,0],['MPF',-A.mpf,-B.mpf,0],['Salaries tax',-A.tax,-B.tax,0],
     ['Net annual',A.net,B.net,1],['Net / month',A.net/12,B.net/12,1],['Net / month (EUR)',A.net/12,B.net/12,2]];
+  if(couple)rows.push(['Household net / month',a.hhNet/12,b.hhNet/12,1]);
   let html='<div class="cmp"><div class="h">&nbsp;</div><div class="h" style="text-align:right;color:var(--neon-jade)">Offer A</div><div class="h" style="text-align:right;color:var(--neon-pink)">Offer B</div></div>';
-  rows.forEach(row=>{const lab=row[0],a=row[1],b=row[2],hi=row[3];const fmt=hi===2?eurFromHk:hk;const wa=hi&&a>b?'win':'',wb=hi&&b>a?'win':'';
-    html+='<div class="cmp"><div class="lab">'+lab+'</div><div class="num '+wa+'">'+fmt(a)+'</div><div class="num '+wb+'">'+fmt(b)+'</div></div>';});
+  rows.forEach(row=>{const lab=row[0],x=row[1],y=row[2],hi=row[3];const fmt=hi===2?eurFromHk:hk;const wa=hi&&x>y?'win':'',wb=hi&&y>x?'win':'';
+    html+='<div class="cmp"><div class="lab">'+lab+'</div><div class="num '+wa+'">'+fmt(x)+'</div><div class="num '+wb+'">'+fmt(y)+'</div></div>';});
   $('cmpTable').innerHTML=html;
-  const dMonth=(B.net-A.net)/12,dYear=B.net-A.net,grossGap=B.gross-A.gross;
-  const keep=grossGap?((B.net-A.net)/grossGap*100):0;
+  $('cmpScope').textContent=couple
+    ?'Household mode: each offer replaces '+($('s_name').value||'person 1')+'’s package and the whole household is recalculated with the Salary-tab settings.'
+    :'Marital status, children, parents and deductions are taken from the Salary tab and applied to both offers.';
+  const dYear=b.hhNet-a.hhNet,dMonth=dYear/12,grossGap=B.gross-A.gross;
+  const keep=grossGap?(dYear/grossGap*100):0;
   $('cmpVerdict').innerHTML=dYear===0?'Both offers are identical.':
-    'Offer B nets you <b class="'+(dMonth>=0?'pos':'neg')+'">'+hk(dMonth)+' / month</b> ('+eurFromHk(dMonth)+
+    'Offer B nets '+(couple?'the household':'you')+' <b class="'+(dMonth>=0?'pos':'neg')+'">'+hk(dMonth)+' / month</b> ('+eurFromHk(dMonth)+
     ') — <b>'+hk(dYear)+' / year</b> after tax &amp; MPF.'+
     (grossGap>0?' Of every extra HK$ in gross pay, you keep about <b>'+keep.toFixed(0)+'%</b> after tax.':'');
 }
 
 /* ================= move check (NL vs HK) ================= */
 function renderMove(){
-  const col=parseFloat($('nl_col').value)||1;
+  const c=parseFloat($('nl_col').value), col=Number.isFinite(c)?Math.min(2.5,Math.max(0.5,c)):1;
+  $('nlEst2').style.display=couple?'block':'none';
   let nlNetYr;
-  if(nlMode==='est'){const r=nlNetFromGross(num('nl_gross'),$('nl_ruling').value==='yes');nlNetYr=r.net;}
-  else{const v=num('nl_net');nlNetYr=$('nl_per').value==='month'?v*12:v;}
+  if(nlMode==='est'){
+    nlNetYr=nlNetFromGross(num('nl_gross'),$('nl_ruling').value==='yes').net;
+    if(couple)nlNetYr+=nlNetFromGross(num('nl_gross2'),$('nl_ruling2').value==='yes').net; /* each earner taxed separately, then summed */
+  }else{const v=num('nl_net');nlNetYr=$('nl_per').value==='month'?v*12:v;}
   const hkT=hkTakeHome();const hkNetYrEur=hkT.netYr/fxRate();
   $('moveScope').textContent='Comparing '+(hkT.scope==='household'?'household':'your')+' net take-home. HK side reflects your Salary tab.';
   const nlMo=nlNetYr/12,hkMo=hkNetYrEur/12;
@@ -1052,24 +1161,25 @@ function renderMove(){
     html+='<div class="cmp"><div class="lab">'+r[0]+'</div><div class="num '+wn+'">'+eur(r[1])+'</div><div class="num '+wh+'">'+eur(r[2])+'</div></div>';});
   $('moveTable').innerHTML=html;
   const diff=hkMo-nlMo, hkAdj=hkMo/col, diffAdj=hkAdj-nlMo;
-  let v='In raw euros, Hong Kong is <b class="'+(diff>=0?'pos':'neg')+'">'+eur(Math.abs(diff))+'/month '+(diff>=0?'more':'less')+'</b> than the Netherlands ('+eur(Math.abs(diff*12))+'/yr).';
+  let v='In raw euros, Hong Kong take-home is <b class="'+(diff>=0?'pos':'neg')+'">'+eur(Math.abs(diff))+'/month '+(diff>=0?'more':'less')+'</b> than the Netherlands ('+eur(Math.abs(diff*12))+'/yr).';
   if(Math.abs(col-1)>0.001){
-    v+='<br>After adjusting for HK being '+col.toFixed(2)+'× the cost of living, your HK pay is worth about <b>'+eur(hkAdj)+'/month</b> in NL terms — '+
-      '<b class="'+(diffAdj>=0?'pos':'neg')+'">'+eur(Math.abs(diffAdj))+'/month '+(diffAdj>=0?'ahead':'behind')+'</b>.';
+    v+='<br>With HK at '+col.toFixed(2)+'× the cost of living, your HK pay buys about what <b>'+eur(hkAdj)+'/month</b> buys in NL — '+
+      '<b class="'+(diffAdj>=0?'pos':'neg')+'">'+eur(Math.abs(diffAdj))+'/month '+(diffAdj>=0?'ahead':'behind')+'</b>. This deflates all of your pay, including the part you save, so it is a cautious figure.';
   }else{
-    v+=' Set a cost-of-living multiplier above to compare real purchasing power.';
+    v+=' Set a cost-of-living multiplier above to compare purchasing power.';
   }
   $('moveVerdict').innerHTML=v;
 }
 
 /* ================= mode toggles ================= */
-function setCouple(on){couple=on;
-  $('hh_single').classList.toggle('on',!on);$('hh_couple').classList.toggle('on',on);
-  $('person2').style.display=on?'block':'none';
-  $('maritalField').style.display=on?'none':'block';
-  $('sharedNote').textContent=on?'Household mode: each person taxed individually. Children/parents allowances auto-assigned to the higher earner.':'';
-  refreshAll();saveState();
+function applyCoupleUi(){
+  $('hh_single').classList.toggle('on',!couple);$('hh_couple').classList.toggle('on',couple);
+  $('person2').style.display=couple?'block':'none';
+  $('maritalField').style.display=couple?'none':'block';
+  $('alwWhoField').style.display=couple?'block':'none';
+  $('sharedNote').textContent=couple?'Household mode: each person is taxed individually. Child/parent allowances go to whoever they save the most tax for, unless you choose. Only a person who is actually eligible can claim — e.g. the parent must be theirs (or their spouse’s) and normally live in Hong Kong.':'';
 }
+function setCouple(on){couple=on;applyCoupleUi();refreshAll();saveState();}
 function setNlMode(m){nlMode=m;
   $('nl_known').classList.toggle('on',m==='known');$('nl_est').classList.toggle('on',m==='est');
   $('nlKnownBox').style.display=m==='known'?'block':'none';
@@ -1083,18 +1193,16 @@ function refreshAll(){renderSalary();if($('full').classList.contains('active'))r
   $(pre+'_month').addEventListener('input',()=>{fromMonthly(pre);refreshAll();});
   $(pre+'_annual').addEventListener('input',()=>{fromAnnual(pre);refreshAll();});
   $(pre+'_periods').addEventListener('input',()=>{fromPeriods(pre);refreshAll();});
-  $(pre+'_bonus').addEventListener('input',refreshAll);
-  $(pre+'_housing').addEventListener('input',refreshAll);
-  $(pre+'_other').addEventListener('input',refreshAll);
+  ['_bonus','_housing','_other','_erpct'].forEach(k=>$(pre+k).addEventListener('input',refreshAll));
 });
-['s_name','m_name','s_marital','s_children','s_parents','fx'].forEach(id=>$(id).addEventListener('input',refreshAll));
+['s_name','m_name','s_marital','s_children','s_parents','s_alwWho','fx'].forEach(id=>$(id).addEventListener('input',refreshAll));
 $('hh_single').addEventListener('click',()=>setCouple(false));
 $('hh_couple').addEventListener('click',()=>setCouple(true));
 /* full picture inputs; rent is mirrored into the Budget tab */
 $('s_taxyear').addEventListener('input',()=>{ALLOW=TAX_YEARS[$('s_taxyear').value]||ALLOW;refreshAll();});
 $('fp_rent').addEventListener('input',()=>{setField('b_rent',$('fp_rent').value);refreshAll();});
 $('b_rent').addEventListener('input',()=>{setField('fp_rent',$('b_rent').value);refreshAll();});
-['fp_rentded','fp_split','fp_start'].forEach(id=>$(id).addEventListener('input',refreshAll));
+['fp_rentded','fp_split','fp_start','fp_rrs','fp_rrsAmt','fp_y1lumps'].forEach(id=>$(id).addEventListener('input',refreshAll));
 $('fp_perMonth').addEventListener('click',()=>setFpPeriod('month'));
 $('fp_perYear').addEventListener('click',()=>setFpPeriod('year'));
 $('fp_addPartner').addEventListener('click',()=>setCouple(true));
@@ -1106,7 +1214,7 @@ $('b_estimate').addEventListener('click',()=>{if(confirm('Replace your monthly b
   $(p+'_bonus').addEventListener('input',renderCompare);
   $(p+'_housing').addEventListener('input',renderCompare);
 });
-['nl_net','nl_per','nl_gross','nl_ruling','nl_col'].forEach(id=>$(id).addEventListener('input',renderMove));
+['nl_net','nl_per','nl_gross','nl_ruling','nl_gross2','nl_ruling2','nl_col'].forEach(id=>$(id).addEventListener('input',renderMove));
 $('nl_known').addEventListener('click',()=>setNlMode('known'));
 $('nl_est').addEventListener('click',()=>setNlMode('est'));
 $('resetBtn').addEventListener('click',()=>{if(confirm('Reset all inputs to defaults?'))resetState();});
@@ -1114,17 +1222,17 @@ $('resetBtn').addEventListener('click',()=>{if(confirm('Reset all inputs to defa
 document.addEventListener('input',()=>{clearTimeout(saveT);saveT=setTimeout(saveState,400);});
 document.addEventListener('change',saveState);
 
+/* Offer A is a snapshot of person 1's package, refreshed only on request */
 function seedCompare(){const p=pkgOf('s');
   $('a_month').value=Math.round(p.month);$('a_periods').value=p.periods;
   $('a_bonus').value=p.bonus;$('a_housing').value=p.housing;$('a_annual').value=Math.round(p.month*p.periods);}
+$('a_copy').addEventListener('click',()=>{seedCompare();renderCompare();saveState();});
 
 /* ================= init ================= */
 loadState();
 ALLOW=TAX_YEARS[$('s_taxyear').value]||ALLOW;
 $('b_rent').value=$('fp_rent').value;
-$('hh_single').classList.toggle('on',!couple);$('hh_couple').classList.toggle('on',couple);
-$('person2').style.display=couple?'block':'none';$('maritalField').style.display=couple?'none':'block';
-$('sharedNote').textContent=couple?'Household mode: each person taxed individually. Children/parents allowances auto-assigned to the higher earner.':'';
+applyCoupleUi();
 $('nl_known').classList.toggle('on',nlMode==='known');$('nl_est').classList.toggle('on',nlMode==='est');
 $('nlKnownBox').style.display=nlMode==='known'?'block':'none';$('nlEstBox').style.display=nlMode==='est'?'block':'none';
 const hadSaved=!!localStorage.getItem(STORE);

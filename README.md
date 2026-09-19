@@ -89,6 +89,16 @@ republishes automatically within a minute.
 
 ## Disclaimer
 
+## Model notes
+
+- **Spending vs savings:** budget lines marked 💰 are savings, everything else is spending. Every tab uses that one definition; one-off lines marked ↩ are refundable.
+- **MPF** is calculated per monthly contribution period (so a bonus or 13th month can raise it), employer and employee separately. An employer pension above the mandatory 5% can be entered as a % of base.
+- **Tax rules are versioned per year of assessment** (2025/26 incl. the one-off HK$3,000 reduction of final tax, 2026/27). The first-tax-bill estimate uses each year's own rules and never applies one-off reductions to provisional tax.
+- **Household mode** assigns child/parent allowances and the rent deduction to whoever they save the most tax for (or as chosen), and Offer Compare runs each offer through the same household calculation.
+- **Employer rent refund scheme** can be switched on (who, how much); it replaces the rent deduction.
+- **NL estimate** uses the official 2026 brackets and credits, caps the 30% ruling, and taxes each earner separately.
+- Budget figures from the estimator are rough placeholders, not verified prices. Eligibility for allowances and deductions is assumed, not checked.
+
 All figures are **planning estimates, not tax advice**. Built on Hong Kong 2025/26 and
 2026/27 salaries-tax rules, MPF caps and the domestic-rent deduction, and Netherlands 2026
 box-1 rates. The hidden/annual cost lines are placeholders — replace them with your own. Verify with the IRD,
